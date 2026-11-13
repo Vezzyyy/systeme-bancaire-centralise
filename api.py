@@ -2,18 +2,24 @@
 =============================================================================
 PROJET : SYSTEME BANCAIRE CENTRALISE (SIDPEF)
 FICHIER : api.py
-SPRINT 6 : API RESTFUL FASTAPI & INTEGRATION METIER
-RESPONSABLE : Mohamed Amine Aouzagh & Equipe
+SPRINT 7 : SYSTEME D'AUTHENTIFICATION JWT, RBAC & API SECURISEE
+RESPONSABLE : Equipe Projet (Yassine, Saad, Hamza, Mouad, Mohamed Amine)
 =============================================================================
-Fournit l'API d'interconnexion entre la couche de donnees MySQL (banking_dao.py)
-et l'interface web institutionnelle.
+Fournit l'API d'authentification bancaire OAuth2 / JWT, le contrôle d'accès
+fondé sur les rôles (RBAC) et l'interconnexion sécurisée avec MySQL 8+.
 =============================================================================
 """
 
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
-from typing import Any
-from fastapi import FastAPI, HTTPException, status
+import os
+from typing import Any, Optional
+import jwt
+from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer, OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 import uvicorn
 from banking_dao import BankingDAO
@@ -26,12 +32,31 @@ from models import (
 )
 
 # -----------------------------------------------------------------------------
+# CONFIGURATION DE SECURITE JWT (STANDARDS BANCAIRES)
+# -----------------------------------------------------------------------------
+JWT_SECRET = os.getenv("JWT_SECRET", "sidpef-banking-production-security-token-secret-2026")
+JWT_ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 8  # Durée de validité de 8 heures (session de travail)
+
+http_bearer = HTTPBearer(auto_error=False)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token", auto_error=False)
+
+
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+    """Génère un jeton JWT signé avec date d'expiration et métadonnées RBAC."""
+    to_encode = data.copy()
+    expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+
+# -----------------------------------------------------------------------------
 # APPLICATION FASTAPI
 # -----------------------------------------------------------------------------
 app = FastAPI(
     title="SIDPEF — Système Bancaire Centralisé API",
-    description="API RESTful institutionnelle pour la gestion des comptes, virements et piste d'audit.",
-    version="1.0.0",
+    description="API RESTful institutionnelle sécurisée par JWT, RBAC et intégrité MySQL 8+.",
+    version="1.1.0",
     docs_url="/api/docs",
     redoc_url="/api/redoc",
 )
@@ -45,10 +70,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Montage des fichiers statiques de l'application web si présents
+if os.path.exists("static"):
+    app.mount("/static", StaticFiles(directory="static"), name="static")
+
 
 # -----------------------------------------------------------------------------
 # SCHEMAS PYDANTIC V2
 # -----------------------------------------------------------------------------
+class LoginRequest(BaseModel):
+    username: str = Field(..., description="Email bancaire ou CIN du client/administrateur")
+    password: str = Field(..., description="Mot de passe secret")
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: dict[str, Any]
+
+
 class VirementRequest(BaseModel):
     compte_source_id: int = Field(..., description="Identifiant du compte à débiter")
     compte_dest_id: int = Field(..., description="Identifiant du compte à créditer")
@@ -71,9 +111,149 @@ class TriggerTestRequest(BaseModel):
 
 
 # -----------------------------------------------------------------------------
+# DEPENDANCES D'AUTHENTIFICATION & CONTROLE D'ACCES (RBAC)
+# -----------------------------------------------------------------------------
+def get_current_user(
+    request: Request,
+    auth: Optional[HTTPAuthorizationCredentials] = Depends(http_bearer),
+    token_oauth: Optional[str] = Depends(oauth2_scheme),
+) -> dict[str, Any]:
+    """
+    Extrait et valide le jeton JWT transmis via header Authorization: Bearer <token>.
+    Résout l'utilisateur en base de données et garantit l'intégrité de la session.
+    """
+    token = None
+    if auth and auth.credentials:
+        token = auth.credentials
+    elif token_oauth:
+        token = token_oauth
+    else:
+        raw_header = request.headers.get("Authorization", "")
+        if raw_header.startswith("Bearer "):
+            token = raw_header.split(" ", 1)[1].strip()
+
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Accès non authentifié : jeton JWT Bearer absent.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        cin: Optional[str] = payload.get("cin") or payload.get("sub")
+        if not cin:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Jeton JWT invalide : identifiant bancaire manquant.",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Session expirée : veuillez vous reconnecter.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    except jwt.InvalidTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Jeton de sécurité invalide ou falsifié.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    user = BankingDAO.get_user_by_cin(cin)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Utilisateur bancaire introuvable dans la base centrale.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return user
+
+
+def get_optional_current_user(
+    request: Request,
+    auth: Optional[HTTPAuthorizationCredentials] = Depends(http_bearer),
+    token_oauth: Optional[str] = Depends(oauth2_scheme),
+) -> Optional[dict[str, Any]]:
+    """Tente de résoudre l'utilisateur si un jeton est présent, sinon renvoie None sans lever d'erreur."""
+    try:
+        return get_current_user(request, auth, token_oauth)
+    except HTTPException:
+        return None
+
+
+def require_admin(current_user: dict[str, Any] = Depends(get_current_user)) -> dict[str, Any]:
+    """Garantit que l'utilisateur dispose du rôle privilégié ADMIN (RBAC)."""
+    if str(current_user.get("role", "")).upper() != "ADMIN":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Accès interdit : cette opération est strictement réservée au Back-Office Administrateur.",
+        )
+    return current_user
+
+
+# -----------------------------------------------------------------------------
+# ENDPOINTS D'AUTHENTIFICATION (SPRINT 7)
+# -----------------------------------------------------------------------------
+@app.post("/api/auth/login", tags=["Authentification"], response_model=TokenResponse)
+def login_json(credentials: LoginRequest) -> TokenResponse:
+    """
+    Authentifie un client ou un administrateur à partir de son email ou CIN et de son mot de passe.
+    Retourne le jeton JWT signé avec les permissions du rôle.
+    """
+    user = BankingDAO.authenticate_user(credentials.username, credentials.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Identifiants bancaires incorrects (Email/CIN ou mot de passe erroné).",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    token = create_access_token({
+        "sub": user["cin"],
+        "cin": user["cin"],
+        "email": user["email"],
+        "role": user["role"],
+        "nom": user["nom"],
+        "prenom": user["prenom"],
+    })
+
+    return TokenResponse(
+        access_token=token,
+        token_type="bearer",
+        user=user,
+    )
+
+
+@app.post("/api/auth/token", tags=["Authentification"], include_in_schema=False)
+def login_oauth2_form(form_data: OAuth2PasswordRequestForm = Depends()) -> dict[str, str]:
+    """Support standard OAuth2 Password Request Form pour Swagger UI."""
+    user = BankingDAO.authenticate_user(form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Identifiants incorrects.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    token = create_access_token({
+        "sub": user["cin"],
+        "cin": user["cin"],
+        "email": user["email"],
+        "role": user["role"],
+    })
+    return {"access_token": token, "token_type": "bearer"}
+
+
+@app.get("/api/auth/me", tags=["Authentification"])
+def get_current_user_profile(user: dict[str, Any] = Depends(get_current_user)) -> dict[str, Any]:
+    """Retourne l'identité et le rôle de l'utilisateur actuellement connecté."""
+    return user
+
+
+# -----------------------------------------------------------------------------
 # ENDPOINTS METIER
 # -----------------------------------------------------------------------------
-
 @app.get("/api/health", tags=["Système"])
 def healthcheck() -> dict[str, Any]:
     """Vérification de l'état de l'API et de la connectivité au pool MySQL."""
@@ -99,7 +279,7 @@ def healthcheck() -> dict[str, Any]:
 
 @app.get("/api/clients", tags=["Clients"])
 def get_all_clients() -> list[dict[str, Any]]:
-    """Retourne la liste de tous les clients enregistrés pour le sélecteur d'utilisateurs."""
+    """Retourne la liste des clients enregistrés pour le répertoire bancaire."""
     query = """
         SELECT cl.num_client, cl.nom, cl.prenom, cl.cin, cl.email, cl.telephone,
                COUNT(c.id_contrepartie) AS nb_comptes,
@@ -116,8 +296,23 @@ def get_all_clients() -> list[dict[str, Any]]:
 
 
 @app.get("/api/clients/{cin}", tags=["Clients"])
-def get_client_profile(cin: str) -> dict[str, Any]:
-    """Vue consolidée 360° du client, de ses comptes, cartes et soldes."""
+def get_client_profile(
+    cin: str,
+    current_user: Optional[dict[str, Any]] = Depends(get_optional_current_user),
+) -> dict[str, Any]:
+    """
+    Vue consolidée 360° du client, de ses comptes, cartes et soldes.
+    Si un utilisateur est connecté avec un rôle CLIENT, il ne peut consulter que son propre profil.
+    """
+    if current_user:
+        user_role = str(current_user.get("role", "")).upper()
+        user_cin = str(current_user.get("cin", "")).upper()
+        if user_role != "ADMIN" and user_cin != cin.strip().upper():
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Accès refusé : vous n'êtes pas autorisé à consulter les données bancaires du client {cin}.",
+            )
+
     try:
         profil = BankingDAO.get_client_by_cin(cin)
         client = profil["client"]
@@ -130,6 +325,7 @@ def get_client_profile(cin: str) -> dict[str, Any]:
                 "email": client.email,
                 "telephone": client.telephone,
                 "date_naissance": str(client.date_naissance) if client.date_naissance else None,
+                "role": getattr(client, "role", "CLIENT"),
             },
             "comptes": profil["comptes"],
             "cartes": profil["cartes"],
@@ -225,7 +421,9 @@ def executer_virement(req: VirementRequest) -> VirementResponse:
 
 
 @app.get("/api/audit/anomalies", tags=["Audit & Sécurité"])
-def get_anomalies_audit() -> list[dict[str, Any]]:
+def get_anomalies_audit(
+    current_user: Optional[dict[str, Any]] = Depends(get_optional_current_user),
+) -> list[dict[str, Any]]:
     """Extrait l'ensemble des transactions rejetées ou en attente pour la supervision administrative."""
     try:
         anomalies = BankingDAO.get_anomalies_du_jour()
@@ -269,11 +467,17 @@ def tester_trigger_immuabilite(req: TriggerTestRequest) -> dict[str, Any]:
 
 
 # -----------------------------------------------------------------------------
-# POINT D'ENTREE API REST
+# POINT D'ENTREE RACINE (APPLICATION WEB OU API STATUS)
 # -----------------------------------------------------------------------------
-@app.get("/", tags=["Système"])
-def root() -> dict[str, str]:
-    """Point d'entrée racine de l'API bancaire."""
+@app.get("/", tags=["Système"], include_in_schema=False)
+def root():
+    """Point d'entrée racine : sert l'application web SIDPEF ou les métadonnées de l'API."""
+    for candidate in [
+        os.path.join("static", "index.html"),
+        os.path.join("sidpef-—-intranet-bancaire-centralisé", "index.html"),
+    ]:
+        if os.path.exists(candidate):
+            return FileResponse(candidate)
     return {
         "service": "SIDPEF Core Banking API",
         "documentation": "/api/docs",
