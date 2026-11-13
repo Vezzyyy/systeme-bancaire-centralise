@@ -190,6 +190,47 @@ SELECT
 FROM `mouvement`
 WHERE `ref_transaction` = 'TX-2026-VIR-001';
 
+-- =============================================================================
+-- ENRICHISSEMENT DU JEU D'ESSAI POUR LES REQUETES ANALYTIQUES (SPRINT 4)
+-- =============================================================================
+
+-- 1. Transaction en attente (Virement Web de 1 000 MAD entre C3 et C4)
+INSERT INTO `transaction` (`ref_transaction`, `date_heure`, `statut_trans`, `ip_source`, `code_type_trans`, `code_canal`)
+VALUES ('TX-2026-ATT-002', NOW(), 'EN_ATTENTE', '196.200.15.50', 'VIREMENT', 'WEB');
+
+INSERT INTO `mouvement` (`sens`, `montant`, `date_valeur`, `devise`, `ref_transaction`, `id_contrepartie`)
+VALUES ('D', 1000.00, CURDATE(), 'MAD', 'TX-2026-ATT-002', 3),
+       ('C', 1000.00, CURDATE(), 'MAD', 'TX-2026-ATT-002', 4);
+
+-- 2. Transaction rejetee (Tentative de virement avec montant excessif)
+INSERT INTO `transaction` (`ref_transaction`, `date_heure`, `statut_trans`, `ip_source`, `code_type_trans`, `code_canal`)
+VALUES ('TX-2026-REJ-003', NOW(), 'REJETEE', '196.200.15.75', 'VIREMENT', 'MOBILE');
+
+INSERT INTO `mouvement` (`sens`, `montant`, `date_valeur`, `devise`, `ref_transaction`, `id_contrepartie`)
+VALUES ('D', 999999.00, CURDATE(), 'MAD', 'TX-2026-REJ-003', 2),
+       ('C', 999999.00, CURDATE(), 'MAD', 'TX-2026-REJ-003', 5);
+
+-- 3. Depot d especes au guichet physique (Compte 1 : +5 000 MAD, Caisse 6 : -5 000 MAD)
+INSERT INTO `transaction` (`ref_transaction`, `date_heure`, `statut_trans`, `code_type_trans`, `code_canal`)
+VALUES ('TX-2026-DEP-004', DATE_SUB(NOW(), INTERVAL 2 HOUR), 'EN_ATTENTE', 'DEPOT', 'GUICHET');
+
+INSERT INTO `mouvement` (`sens`, `montant`, `date_valeur`, `devise`, `ref_transaction`, `id_contrepartie`)
+VALUES ('D', 5000.00, CURDATE(), 'MAD', 'TX-2026-DEP-004', 6),
+       ('C', 5000.00, CURDATE(), 'MAD', 'TX-2026-DEP-004', 1);
+
+CALL `SP_VALIDER_TRANSACTION`('TX-2026-DEP-004');
+
+-- 4. Retrait d especes au GAB par carte (Compte 1 : -800 MAD, Caisse 6 : +800 MAD)
+INSERT INTO `transaction` (`ref_transaction`, `date_heure`, `statut_trans`, `code_type_trans`, `code_canal`, `num_carte`)
+VALUES ('TX-2026-RET-005', DATE_SUB(NOW(), INTERVAL 1 HOUR), 'EN_ATTENTE', 'RETRAIT', 'GAB', '4152890011223344');
+
+INSERT INTO `mouvement` (`sens`, `montant`, `date_valeur`, `devise`, `ref_transaction`, `id_contrepartie`)
+VALUES ('D', 800.00, CURDATE(), 'MAD', 'TX-2026-RET-005', 1),
+       ('C', 800.00, CURDATE(), 'MAD', 'TX-2026-RET-005', 6);
+
+CALL `SP_VALIDER_TRANSACTION`('TX-2026-RET-005');
+
+
 -- -----------------------------------------------------------------------------
 -- DEMONSTRATION DE LA SECURITE D'IMMUABILITE (Optionnel)
 -- Si vous tentez de modifier ou supprimer un mouvement, les triggers declenchent une erreur :
