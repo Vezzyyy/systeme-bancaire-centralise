@@ -1365,6 +1365,9 @@
             ⎋ Déconnexion
           </button>
         </div>
+
+        <!-- Navigation Menu -->
+        <nav id="sidebar-nav" class="sidebar-nav"></nav>
       </aside>
 
       <!-- Main Column -->
@@ -1873,6 +1876,7 @@
 
       function renderSidebarNav() {
         const navEl = document.getElementById('sidebar-nav');
+        if (!navEl) return;
         const items = AppState.mode === 'client' ? CLIENT_NAV : ADMIN_NAV;
         const sectionTitle = AppState.mode === 'client' ? 'Portail Client' : 'Opérations Centrales';
 
