@@ -122,7 +122,8 @@ class BankingDAO:
             JOIN compte c ON t.id_contrepartie_compte = c.id_contrepartie
             JOIN type_compte tc ON c.code_type = tc.code_type
             JOIN agence ag ON c.code_agence = ag.code_agence
-            WHERE t.num_client = %s;
+            WHERE t.num_client = %s
+              AND (t.date_fin IS NULL OR t.date_fin >= CURDATE());
         """
         cartes_query = """
             SELECT num_carte, date_expiration, statut_carte, plafond_paiement, plafond_retrait
