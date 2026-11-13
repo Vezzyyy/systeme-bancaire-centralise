@@ -1,0 +1,6 @@
+{
+  "name": "SIDPEF — Intranet Bancaire Centralisé",
+  "description": "Portail client et console back-office d'opérations bancaires, clearing, détection de fraude et audit d'immuabilité SIDPEF.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

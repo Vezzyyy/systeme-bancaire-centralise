@@ -1,0 +1,4837 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SIDPEF — Intranet Bancaire Centralisé</title>
+    <meta
+      name="description"
+      content="Portail client et console back-office d'opérations bancaires, clearing, détection de fraude et audit d'immuabilité SIDPEF."
+    />
+    <meta property="og:title" content="SIDPEF — Intranet Bancaire Centralisé" />
+    <meta
+      property="og:description"
+      content="Portail client et console back-office d'opérations bancaires, clearing, détection de fraude et audit d'immuabilité SIDPEF."
+    />
+    <meta property="og:type" content="website" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <style>
+      :root {
+        --bg-page: #f4f6f8;
+        --bg-surface: #ffffff;
+        --bg-table-header: #f0f3f7;
+        --bg-row-hover: #f8fafc;
+        --border-subtle: #e1e5eb;
+        --border-row: #e9ecef;
+        --accent-primary: #1a3c5e;
+        --accent-admin-sidebar: #0f2744;
+        --accent-secondary: #2563a8;
+        --text-primary: #111827;
+        --text-secondary: #4b5563;
+        --text-muted: #6b7280;
+        --success-text: #1a6e3c;
+        --success-bg: #eaf4ee;
+        --danger-text: #8b1a1a;
+        --danger-bg: #fdf0f0;
+        --danger-border: #c0392b;
+        --warning-text: #7a5500;
+        --warning-bg: #fdf8e6;
+        --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
+        --font-ui: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+        --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        background-color: var(--bg-page);
+        color: var(--text-primary);
+        font-family: var(--font-ui);
+        font-size: 13px;
+        line-height: 1.45;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* Layout Shell */
+      .app-shell {
+        display: flex;
+        min-height: 100vh;
+        width: 100%;
+      }
+
+      .sidebar {
+        width: 256px;
+        flex-shrink: 0;
+        background-color: var(--accent-primary);
+        color: #e5e7eb;
+        display: flex;
+        flex-direction: column;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        border-right: 1px solid rgba(255, 255, 255, 0.08);
+        transition: background-color 0.15s ease;
+        z-index: 20;
+      }
+
+      .sidebar.admin-mode {
+        background-color: var(--accent-admin-sidebar);
+      }
+
+      .sidebar-header {
+        padding: 16px 16px 12px 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .sidebar-logo {
+        font-weight: 700;
+        font-size: 16px;
+        letter-spacing: 0.1em;
+        color: #ffffff;
+        margin: 0;
+      }
+
+      .sidebar-subtitle {
+        font-size: 11px;
+        color: #9ca3af;
+        margin-top: 2px;
+      }
+
+      .mode-switcher {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4px;
+        padding: 10px 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        background-color: rgba(0, 0, 0, 0.12);
+      }
+
+      .mode-btn {
+        appearance: none;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: transparent;
+        color: #cbd5e1;
+        font-family: var(--font-ui);
+        font-size: 11px;
+        font-weight: 600;
+        padding: 7px 6px;
+        border-radius: 3px;
+        cursor: pointer;
+        text-align: center;
+        white-space: nowrap;
+        transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+      }
+
+      .mode-btn:hover {
+        background-color: rgba(255, 255, 255, 0.08);
+        color: #ffffff;
+      }
+
+      .mode-btn.active {
+        background-color: #ffffff;
+        color: var(--accent-primary);
+        border-color: #ffffff;
+      }
+
+      .client-selector-box {
+        padding: 10px 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .client-selector-label {
+        display: block;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #94a3b8;
+        margin-bottom: 5px;
+      }
+
+      .client-selector {
+        width: 100%;
+        background-color: rgba(255, 255, 255, 0.08);
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 3px;
+        padding: 6px 8px;
+        font-family: var(--font-ui);
+        font-size: 12px;
+        outline: none;
+        cursor: pointer;
+      }
+
+      .client-selector option {
+        background-color: #1a3c5e;
+        color: #ffffff;
+      }
+
+      .sidebar-nav {
+        flex: 1;
+        overflow-y: auto;
+        padding: 10px 0;
+      }
+
+      .nav-section-label {
+        padding: 6px 16px;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #94a3b8;
+      }
+
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        width: 100%;
+        padding: 9px 16px;
+        background: transparent;
+        border: none;
+        border-left: 4px solid transparent;
+        color: #cbd5e1;
+        font-family: var(--font-ui);
+        font-size: 13px;
+        font-weight: 500;
+        text-align: left;
+        cursor: pointer;
+        transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+      }
+
+      .nav-item:hover {
+        background-color: rgba(255, 255, 255, 0.07);
+        color: #ffffff;
+      }
+
+      .nav-item.active {
+        background-color: rgba(255, 255, 255, 0.12);
+        color: #ffffff;
+        font-weight: 600;
+        border-left-color: #ffffff;
+      }
+
+      .nav-item svg {
+        width: 15px;
+        height: 15px;
+        flex-shrink: 0;
+        opacity: 0.85;
+      }
+
+      .sidebar-footer {
+        padding: 12px 16px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        background-color: rgba(0, 0, 0, 0.16);
+      }
+
+      .health-indicator {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 0.03em;
+      }
+
+      .health-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        background-color: #9ca3af;
+      }
+
+      .health-dot.up {
+        background-color: #22c55e;
+      }
+
+      .health-dot.down {
+        background-color: #ef4444;
+      }
+
+      .health-meta {
+        margin-top: 4px;
+        font-size: 10px;
+        color: #94a3b8;
+        font-family: var(--font-mono);
+      }
+
+      /* Main Workspace */
+      .main-area {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .topbar {
+        height: 52px;
+        background-color: var(--bg-surface);
+        border-bottom: 1px solid var(--border-subtle);
+        padding: 0 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        position: sticky;
+        top: 0;
+        z-index: 15;
+      }
+
+      .topbar-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+      }
+
+      .mobile-menu-btn {
+        display: none;
+        background: #ffffff;
+        border: 1px solid #d1d5db;
+        border-radius: 3px;
+        padding: 5px 8px;
+        cursor: pointer;
+        color: var(--accent-primary);
+      }
+
+      .page-title {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--accent-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex-shrink: 0;
+      }
+
+      .user-context {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-size: 12px;
+        color: var(--text-secondary);
+      }
+
+      .avatar-badge {
+        width: 28px;
+        height: 28px;
+        border-radius: 3px;
+        background-color: var(--accent-primary);
+        color: #ffffff;
+        font-size: 11px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .user-context-meta {
+        white-space: nowrap;
+      }
+
+      .mono {
+        font-family: var(--font-mono);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .content-wrapper {
+        padding: 16px 20px 28px 20px;
+        flex: 1;
+        max-width: 1500px;
+        width: 100%;
+      }
+
+      /* Cards & Typography */
+      .card {
+        background-color: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: 4px;
+        box-shadow: var(--shadow-card);
+        padding: 16px;
+      }
+
+      .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--border-row);
+      }
+
+      .card-title {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--accent-primary);
+      }
+
+      .section-heading {
+        margin: 0 0 12px 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--accent-primary);
+      }
+
+      .label-upper {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+      }
+
+      .metric-grid-4 {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+
+      .metric-card {
+        background-color: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: 4px;
+        box-shadow: var(--shadow-card);
+        padding: 14px 16px;
+      }
+
+      .metric-value {
+        margin-top: 6px;
+        font-family: var(--font-mono);
+        font-variant-numeric: tabular-nums;
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .metric-sub {
+        margin-top: 4px;
+        font-size: 11px;
+        color: var(--text-muted);
+      }
+
+      .grid-2-60-40 {
+        display: grid;
+        grid-template-columns: 3fr 2fr;
+        gap: 14px;
+        align-items: start;
+      }
+
+      .grid-2-equal {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        align-items: start;
+      }
+
+      .grid-accounts-split {
+        display: grid;
+        grid-template-columns: 320px minmax(0, 1fr);
+        gap: 14px;
+        align-items: start;
+      }
+
+      /* Buttons */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 7px 12px;
+        border-radius: 3px;
+        font-family: var(--font-ui);
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        border: 1px solid transparent;
+        white-space: nowrap;
+        transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+        text-decoration: none;
+      }
+
+      .btn:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+
+      .btn-sm {
+        padding: 4px 9px;
+        font-size: 11px;
+      }
+
+      .btn-primary {
+        background-color: var(--accent-primary);
+        color: #ffffff;
+        border-color: var(--accent-primary);
+      }
+
+      .btn-primary:hover:not(:disabled) {
+        background-color: #132d47;
+        border-color: #132d47;
+      }
+
+      .btn-secondary {
+        background-color: #ffffff;
+        color: var(--accent-secondary);
+        border-color: var(--accent-secondary);
+      }
+
+      .btn-secondary:hover:not(:disabled) {
+        background-color: #eff6ff;
+      }
+
+      .btn-neutral {
+        background-color: #ffffff;
+        color: var(--text-primary);
+        border-color: #d1d5db;
+      }
+
+      .btn-neutral:hover:not(:disabled) {
+        background-color: #f9fafb;
+        border-color: #9ca3af;
+      }
+
+      .btn-destructive {
+        background-color: #ffffff;
+        color: var(--danger-border);
+        border-color: var(--danger-border);
+      }
+
+      .btn-destructive:hover:not(:disabled) {
+        background-color: var(--danger-bg);
+      }
+
+      .btn-link {
+        background: transparent;
+        border: none;
+        color: var(--accent-secondary);
+        padding: 0;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+      }
+
+      .btn-link:hover {
+        text-decoration: underline;
+      }
+
+      .action-strip {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        background-color: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: 4px;
+        box-shadow: var(--shadow-card);
+        margin-bottom: 14px;
+      }
+
+      /* Tables */
+      .table-wrap {
+        width: 100%;
+        overflow-x: auto;
+      }
+
+      table.bank-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+      }
+
+      table.bank-table thead th {
+        background-color: var(--bg-table-header);
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+        text-align: left;
+        padding: 8px 10px;
+        border-bottom: 1px solid var(--border-subtle);
+        white-space: nowrap;
+      }
+
+      table.bank-table thead th.num,
+      table.bank-table tbody td.num,
+      table.bank-table tfoot td.num {
+        text-align: right;
+      }
+
+      table.bank-table tbody tr {
+        height: 36px;
+        border-bottom: 1px solid var(--border-row);
+        transition: background-color 0.15s ease;
+      }
+
+      table.bank-table tbody tr:hover {
+        background-color: var(--bg-row-hover);
+      }
+
+      table.bank-table tbody td {
+        padding: 6px 10px;
+        vertical-align: middle;
+      }
+
+      table.bank-table tfoot td {
+        padding: 9px 10px;
+        background-color: var(--bg-table-header);
+        border-top: 1px solid var(--border-subtle);
+        font-weight: 600;
+      }
+
+      tr.row-neg-balance {
+        background-color: #fff8f8;
+      }
+
+      tr.row-neg-balance:hover {
+        background-color: #fdf0f0 !important;
+      }
+
+      tr.border-left-credit td:first-child {
+        border-left: 3px solid var(--success-text);
+      }
+
+      tr.border-left-debit td:first-child {
+        border-left: 3px solid var(--danger-text);
+      }
+
+      tr.border-left-warn td:first-child {
+        border-left: 3px solid #d97706;
+      }
+
+      .amount-credit {
+        color: var(--success-text);
+        font-family: var(--font-mono);
+        font-variant-numeric: tabular-nums;
+        text-align: right;
+        white-space: nowrap;
+      }
+
+      .amount-debit {
+        color: var(--danger-text);
+        font-family: var(--font-mono);
+        font-variant-numeric: tabular-nums;
+        text-align: right;
+        white-space: nowrap;
+      }
+
+      .amount-neutral {
+        font-family: var(--font-mono);
+        font-variant-numeric: tabular-nums;
+        text-align: right;
+        white-space: nowrap;
+      }
+
+      /* Badges */
+      .badge {
+        display: inline-block;
+        padding: 2px 7px;
+        border-radius: 3px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+      }
+
+      .badge-success {
+        color: var(--success-text);
+        background-color: var(--success-bg);
+      }
+
+      .badge-danger {
+        color: var(--danger-text);
+        background-color: var(--danger-bg);
+      }
+
+      .badge-warning {
+        color: var(--warning-text);
+        background-color: var(--warning-bg);
+      }
+
+      .badge-info {
+        color: var(--accent-primary);
+        background-color: #e8eef5;
+      }
+
+      .badge-neutral {
+        color: #374151;
+        background-color: #f3f4f6;
+      }
+
+      /* Forms */
+      .form-group {
+        margin-bottom: 12px;
+      }
+
+      .form-label {
+        display: block;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--text-secondary);
+        margin-bottom: 4px;
+      }
+
+      .form-control {
+        width: 100%;
+        padding: 7px 10px;
+        border: 1px solid #cfd6df;
+        border-radius: 3px;
+        font-family: var(--font-ui);
+        font-size: 13px;
+        color: var(--text-primary);
+        background-color: #ffffff;
+        transition: border-color 0.15s ease;
+      }
+
+      .form-control:focus {
+        outline: none;
+        border-color: var(--accent-secondary);
+      }
+
+      .form-control.invalid {
+        border-color: var(--danger-border);
+      }
+
+      .field-error {
+        font-size: 11px;
+        color: var(--danger-border);
+        margin-top: 3px;
+      }
+
+      /* Tabs */
+      .sub-tabs {
+        display: flex;
+        gap: 2px;
+        border-bottom: 1px solid var(--border-subtle);
+        margin-bottom: 14px;
+      }
+
+      .sub-tab-btn {
+        background: transparent;
+        border: none;
+        border-bottom: 2px solid transparent;
+        padding: 8px 14px;
+        font-family: var(--font-ui);
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: color 0.15s ease, border-color 0.15s ease;
+      }
+
+      .sub-tab-btn:hover {
+        color: var(--accent-primary);
+      }
+
+      .sub-tab-btn.active {
+        color: var(--accent-primary);
+        border-bottom-color: var(--accent-primary);
+      }
+
+      /* Alerts */
+      .alert-banner {
+        padding: 10px 14px;
+        border-radius: 4px;
+        border: 1px solid;
+        margin-bottom: 14px;
+        font-size: 12px;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .alert-danger {
+        background-color: var(--danger-bg);
+        border-color: #ebc8c8;
+        color: var(--danger-text);
+      }
+
+      .alert-success {
+        background-color: var(--success-bg);
+        border-color: #c2decb;
+        color: var(--success-text);
+      }
+
+      .alert-warning {
+        background-color: var(--warning-bg);
+        border-color: #ead8a4;
+        color: var(--warning-text);
+      }
+
+      .alert-info {
+        background-color: #eef4fa;
+        border-color: #c9dbee;
+        color: var(--accent-primary);
+      }
+
+      /* Account List Item */
+      .account-item {
+        padding: 12px;
+        border: 1px solid var(--border-subtle);
+        border-radius: 4px;
+        margin-bottom: 8px;
+        cursor: pointer;
+        background-color: #ffffff;
+        transition: border-color 0.15s ease, background-color 0.15s ease;
+      }
+
+      .account-item:hover {
+        border-color: var(--accent-secondary);
+        background-color: #f8fafc;
+      }
+
+      .account-item.selected {
+        border-color: var(--accent-primary);
+        background-color: #f2f6fa;
+      }
+
+      /* Physical Card Mockup */
+      .bank-card-plastic {
+        width: 340px;
+        height: 200px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #1a3c5e, #2d6a9f);
+        color: #ffffff;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(15, 39, 68, 0.22);
+        flex-shrink: 0;
+      }
+
+      .bank-card-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(17, 24, 39, 0.65);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--font-mono);
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        color: #ffffff;
+        border: 2px solid rgba(255, 255, 255, 0.4);
+      }
+
+      .chip-rect {
+        width: 38px;
+        height: 26px;
+        border-radius: 4px;
+        background-color: #d4b46a;
+        border: 1px solid rgba(255, 255, 255, 0.35);
+      }
+
+      /* Toggle Switch */
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 38px;
+        height: 20px;
+        flex-shrink: 0;
+      }
+
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .slider-toggle {
+        position: absolute;
+        cursor: pointer;
+        inset: 0;
+        background-color: #cbd5e1;
+        border-radius: 3px;
+        transition: 0.15s ease;
+      }
+
+      .slider-toggle::before {
+        position: absolute;
+        content: '';
+        height: 14px;
+        width: 14px;
+        left: 3px;
+        bottom: 3px;
+        background-color: #ffffff;
+        border-radius: 2px;
+        transition: 0.15s ease;
+      }
+
+      .switch input:checked + .slider-toggle {
+        background-color: var(--accent-primary);
+      }
+
+      .switch input:checked + .slider-toggle::before {
+        transform: translateX(18px);
+      }
+
+      /* Definition List (KYC) */
+      dl.kyc-dl {
+        display: grid;
+        grid-template-columns: 170px minmax(0, 1fr);
+        margin: 0;
+      }
+
+      dl.kyc-dl dt {
+        padding: 7px 0;
+        border-bottom: 1px solid var(--border-row);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--text-muted);
+        font-weight: 600;
+      }
+
+      dl.kyc-dl dd {
+        margin: 0;
+        padding: 7px 0;
+        border-bottom: 1px solid var(--border-row);
+        font-size: 13px;
+        color: var(--text-primary);
+      }
+
+      /* Skeleton Loader */
+      @keyframes shimmer {
+        0% {
+          background-position: -400px 0;
+        }
+        100% {
+          background-position: 400px 0;
+        }
+      }
+
+      .skeleton-bar {
+        height: 14px;
+        border-radius: 3px;
+        background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+        background-size: 800px 100%;
+        animation: shimmer 1.3s infinite linear;
+      }
+
+      /* Progress Bar */
+      .progress-track {
+        width: 100%;
+        height: 8px;
+        background-color: #e5e7eb;
+        border-radius: 3px;
+        overflow: hidden;
+        margin-top: 8px;
+      }
+
+      .progress-fill {
+        height: 100%;
+        width: 0%;
+        background-color: var(--accent-primary);
+        transition: width 0.1s linear;
+      }
+
+      /* Log Viewer */
+      .log-viewer {
+        border: 1px solid var(--border-subtle);
+        border-radius: 3px;
+        font-family: var(--font-mono);
+        font-size: 11.5px;
+        max-height: 280px;
+        overflow-y: auto;
+        background-color: #ffffff;
+      }
+
+      .log-line {
+        padding: 6px 10px;
+        border-bottom: 1px solid #f1f5f9;
+        white-space: pre-wrap;
+        word-break: break-all;
+      }
+
+      .log-line:nth-child(even) {
+        background-color: #f8fafc;
+      }
+
+      /* Code Block */
+      pre.json-block {
+        background-color: #f8fafc;
+        border: 1px solid var(--border-subtle);
+        border-radius: 3px;
+        padding: 12px;
+        font-family: var(--font-mono);
+        font-size: 12px;
+        overflow-x: auto;
+        margin: 8px 0 0 0;
+        color: #111827;
+      }
+
+      /* Modal */
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background-color: rgba(0, 0, 0, 0.4);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 50;
+        padding: 16px;
+      }
+
+      .modal-backdrop.open {
+        display: flex;
+      }
+
+      .modal-dialog {
+        background-color: #ffffff;
+        border: 1px solid var(--border-subtle);
+        border-radius: 4px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
+        width: 100%;
+        max-width: 460px;
+        padding: 18px;
+      }
+
+      .modal-title {
+        margin: 0 0 8px 0;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--accent-primary);
+      }
+
+      .modal-desc {
+        margin: 0 0 10px 0;
+        font-size: 13px;
+        color: var(--text-secondary);
+      }
+
+      .modal-impact {
+        padding: 8px 10px;
+        background-color: #f8fafc;
+        border: 1px solid var(--border-subtle);
+        border-radius: 3px;
+        font-size: 12px;
+        color: var(--text-primary);
+        margin-bottom: 14px;
+      }
+
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+      }
+
+      /* Drawer (Fraud Detail) */
+      .drawer-panel {
+        border: 1px solid var(--border-subtle);
+        border-radius: 4px;
+        background-color: #ffffff;
+        box-shadow: var(--shadow-card);
+        padding: 16px;
+      }
+
+      /* Category Breakdown Bar */
+      .cat-bar-row {
+        margin-bottom: 10px;
+      }
+
+      .cat-bar-track {
+        height: 8px;
+        background-color: #edf1f5;
+        border-radius: 2px;
+        overflow: hidden;
+        margin-top: 4px;
+      }
+
+      .cat-bar-fill {
+        height: 100%;
+        border-radius: 2px;
+      }
+
+      /* Responsive */
+      @media (max-width: 1120px) {
+        .metric-grid-4 {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .grid-2-60-40,
+        .grid-2-equal,
+        .grid-accounts-split {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 820px) {
+        .sidebar {
+          position: fixed;
+          left: -260px;
+          transition: left 0.15s ease, background-color 0.15s ease;
+        }
+        .sidebar.open {
+          left: 0;
+        }
+        .mobile-menu-btn {
+          display: inline-flex;
+        }
+        .user-context-meta {
+          display: none;
+        }
+      }
+
+      @media print {
+        .sidebar,
+        .topbar,
+        .no-print {
+          display: none !important;
+        }
+        .content-wrapper {
+          padding: 0;
+        }
+        body {
+          background: #ffffff;
+        }
+      }
+    
+      /* Login Overlay Styles (Sprint 7 Corporate Auth) */
+      .login-overlay {
+        position: fixed;
+        inset: 0;
+        background-color: var(--bg-page);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        padding: 20px;
+      }
+
+      .login-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: 4px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        width: 440px;
+        max-width: 100%;
+        padding: 32px 28px;
+      }
+
+      .login-header {
+        text-align: center;
+        margin-bottom: 22px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--border-subtle);
+      }
+
+      .login-logo {
+        font-family: var(--font-mono);
+        font-weight: 700;
+        font-size: 24px;
+        letter-spacing: 0.12em;
+        color: var(--accent-primary);
+      }
+
+      .login-sub {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        margin-top: 2px;
+      }
+
+      .login-badge {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin-top: 10px;
+        background: #eef2f6;
+        padding: 4px 10px;
+        display: inline-block;
+        border-radius: 2px;
+        letter-spacing: 0.04em;
+      }
+
+      .login-help {
+        margin-top: 20px;
+        padding-top: 14px;
+        border-top: 1px dashed var(--border-subtle);
+        font-size: 11px;
+        color: var(--text-secondary);
+        background: #f8fafc;
+        padding: 10px 12px;
+        border-radius: 3px;
+      }
+
+      .login-help-title {
+        font-weight: 700;
+        font-size: 10px;
+        color: var(--text-muted);
+        margin-bottom: 6px;
+        letter-spacing: 0.05em;
+      }
+
+      .login-help-item code {
+        background: #e2e8f0;
+        padding: 2px 5px;
+        border-radius: 2px;
+        font-family: var(--font-mono);
+        font-size: 11px;
+      }
+
+    </style>
+  </head>
+  <body>
+
+    <!-- ÉCRAN DE CONNEXION INSTITUTIONNEL (LOGIN CORPORATE - SPRINT 7) -->
+    <div id="login-overlay" class="login-overlay">
+      <div class="login-card">
+        <div class="login-header">
+          <div class="login-logo">SIDPEF</div>
+          <div class="login-sub">Système Bancaire Centralisé</div>
+          <div class="login-badge">AUTHENTIFICATION INTRANET SÉCURISÉE</div>
+        </div>
+
+        <form id="login-form" onsubmit="handleLoginSubmit(event)">
+          <div id="login-alert" class="alert-banner alert-danger" style="display: none; margin-bottom: 14px;"></div>
+
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label class="form-label" for="login-username">Identifiant bancaire (Email ou CIN)</label>
+            <input
+              type="text"
+              id="login-username"
+              class="form-input"
+              placeholder="ex: yassine.chaouri@banque.ma ou BE123456"
+              autocomplete="username"
+              required
+            />
+          </div>
+
+          <div class="form-group" style="margin-bottom: 18px;">
+            <label class="form-label" for="login-password">Mot de passe</label>
+            <input
+              type="password"
+              id="login-password"
+              class="form-input"
+              placeholder="••••••••••••"
+              autocomplete="current-password"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            id="login-submit-btn"
+            class="btn btn-primary"
+            style="width: 100%; height: 38px; justify-content: center; font-size: 13px;"
+          >
+            Se connecter à l'Intranet →
+          </button>
+        </form>
+
+        <div class="login-help">
+          <div class="login-help-title">COMPTES DE TEST HOMOLOGUÉS (ENVIRONNEMENT LOCAL)</div>
+          <div class="login-help-item">
+            <strong>Clients :</strong> <code>yassine.chaouri@banque.ma</code> (ou <code>saad</code>, <code>mouad</code>, <code>hamza</code>, <code>amine</code>)<br/>
+            <strong>Mot de passe :</strong> <code>Sidpef2026!</code>
+          </div>
+          <div class="login-help-item" style="margin-top: 6px;">
+            <strong>Back-Office :</strong> <code>admin@sidpef.ma</code><br/>
+            <strong>Mot de passe :</strong> <code>AdminSidpef2026!</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-shell">
+      <!-- Persistent Sidebar -->
+      <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-logo">SIDPEF</div>
+          <div class="sidebar-subtitle">Sous-système Bancaire Centralisé</div>
+        </div>
+
+        <!-- Mode Switcher -->
+        <div class="mode-switcher">
+          <button
+            type="button"
+            id="mode-btn-client"
+            class="mode-btn active"
+            onclick="switchMode('client')"
+          >
+            Espace Client
+          </button>
+          <button
+            type="button"
+            id="mode-btn-admin"
+            class="mode-btn"
+            onclick="switchMode('admin')"
+          >
+            Back-Office Admin
+          </button>
+        </div>
+
+        <!-- Session Utilisateur Authentifié (Sprint 7) -->
+        <div id="session-box" class="client-selector-box">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <span class="client-selector-label" style="margin-bottom:0;">Session active</span>
+            <span id="session-role-badge" class="badge badge-success" style="font-size:9px;padding:2px 6px;">CLIENT</span>
+          </div>
+          <div id="session-user-name" style="font-weight:600;font-size:13px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+            Utilisateur
+          </div>
+          <div id="session-user-sub" class="mono" style="font-size:11px;color:#9ca3af;margin-bottom:8px;">
+            CIN: —
+          </div>
+          <button type="button" class="btn btn-secondary" onclick="handleLogout()" style="width:100%;height:26px;font-size:11px;justify-content:center;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);color:#fff;">
+            ⎋ Déconnexion
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main Column -->
+      <div class="main-area">
+        <header class="topbar">
+          <div class="topbar-left">
+            <button
+              type="button"
+              class="mobile-menu-btn"
+              onclick="toggleMobileSidebar()"
+              aria-label="Ouvrir le menu"
+            >
+              Menu
+            </button>
+            <h1 id="topbar-title" class="page-title">Tableau de Bord Client</h1>
+          </div>
+
+          <div class="topbar-right">
+            <div class="user-context">
+              <div id="topbar-avatar" class="avatar-badge">YC</div>
+              <div id="topbar-user-info" class="user-context-meta">
+                Chargement... | Dernière connexion: Aujourd'hui, 20:45
+              </div>
+            </div>
+            <button
+              type="button"
+              id="btn-refresh-global"
+              class="btn btn-neutral btn-sm"
+              onclick="refreshCurrentView()"
+              title="Rafraîchir les données"
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <polyline points="1 20 1 14 7 14"></polyline>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+              </svg>
+              Rafraîchir les données
+            </button>
+          </div>
+        </header>
+
+        <main class="content-wrapper">
+          <div id="global-alert-slot"></div>
+          <div id="main-content"></div>
+        </main>
+      </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirm-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-dialog">
+        <h3 id="modal-title" class="modal-title">Confirmation requise</h3>
+        <p id="modal-desc" class="modal-desc"></p>
+        <div id="modal-impact" class="modal-impact"></div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-neutral" onclick="closeConfirmModal()">Annuler</button>
+          <button type="button" id="modal-confirm-btn" class="btn btn-primary">Confirmer</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const API_BASE = (window.location.protocol.startsWith('http') && !window.location.port.includes('3000'))
+        ? window.location.origin
+        : 'http://127.0.0.1:8000';
+
+      const AppState = {
+        currentUser: null,
+        currentCin: null,
+        currentCompteId: null,
+        mode: 'client',
+        activeSection: 'dashboard',
+        clientsList: [],
+        allComptes: [],
+        clientProfile: null,
+        currentReleve: [],
+        filteredReleve: null,
+        releveFilterValues: {
+          dateFrom: '',
+          dateTo: '',
+          amtMin: '',
+          amtMax: '',
+          opType: 'Tous',
+          keyword: '',
+        },
+        kycOverrides: {},
+        accountsTab: 'releve',
+        cardIndex: 0,
+        cardUiState: {},
+        sessions: [
+          {
+            id: 'sess-1',
+            device: 'Chrome 120 — Windows 11',
+            ip: '196.200.15.50',
+            lastActive: 'il y a 2 min',
+          },
+          {
+            id: 'sess-2',
+            device: 'Mobile Safari — iOS 17',
+            ip: '197.230.44.11',
+            lastActive: 'il y a 3h',
+          },
+          {
+            id: 'sess-3',
+            device: 'Firefox 131 — macOS',
+            ip: '105.159.82.14',
+            lastActive: 'hier à 18:12',
+          },
+        ],
+        twoFactorEnabled: true,
+        localMotifs: [],
+        adminTab: 'grand-livre',
+        adminSelectedCin: null,
+        adminAnomalies: [],
+        adminAnomaliesNewCount: 0,
+        adminFraudSelected: null,
+        fraudPollTimer: null,
+        resolvedSuspensRefs: new Set(),
+        auditLogs: [
+          '[2026-11-13 21:05:19] ADMIN_ID:112 | ACTION: CONSULTER_PROFIL | CLIENT: BE123456 | IP: 196.200.15.50',
+          '[2026-11-13 21:04:50] AGENT_ID:4920 | ACTION: EXECUTER_VIREMENT | MONTANT: 500.00 MAD | COMPTES: 2->1 | IP: 127.0.0.1',
+          '[2026-11-13 21:03:00] SYSTEM | ACTION: TRIGGER_BLOC | MOUVEMENT_ID: 1 | SQLSTATE: 45000',
+          '[2026-11-13 20:58:12] FRAUD_ENGINE | ACTION: ALERTE_SEUIL | REF: TX-PY-20261113205812 | SCORE: 87/100 | IP: 127.0.0.1',
+          '[2026-11-13 20:49:05] ADMIN_ID:104 | ACTION: EXPORT_GRAND_LIVRE | COMPTE: 1 | FORMAT: CSV | IP: 10.24.0.18',
+          '[2026-11-13 20:45:00] AUTH_GATEWAY | ACTION: LOGIN_SUCCES | CIN: BE123456 | CANAL: WEB | IP: 196.200.15.50',
+          '[2026-11-13 20:30:11] CLEARING_SVC | ACTION: COMPENSATION_LOT | STATUT: VALIDE | ECRITURES: 42 | IP: 10.24.0.4',
+          '[2026-11-13 19:52:40] AGENT_ID:3108 | ACTION: VERIF_KYC | CLIENT: MC789012 | STATUT: CONFORME | IP: 10.24.1.22',
+          '[2026-11-13 19:14:27] CARD_SWITCH | ACTION: MAJ_PLAFOND | CARTE: 4152********3344 | RETRAIT: 3000.00 MAD',
+          '[2026-11-13 18:40:00] SYSTEM | ACTION: ROTATION_CLE_TLS | POOL: banque_pool | STATUT: OK',
+          '[2026-11-13 18:30:15] AGENT_ID:2210 | ACTION: DEMANDE_CLOTURE | COMPTE: 3 | STATUT: EN_ATTENTE_4_YEUX',
+          '[2026-11-13 17:15:09] COMPLIANCE | ACTION: RAPPORT_BAM_MENSUEL | PERIODE: 2026-11 | STATUT: ARCHIVE',
+        ],
+        rbacRoles: [
+          {
+            id: 'sup',
+            role: 'Superviseur',
+            membres: 'Admin, 2 agents',
+            permissions: 'Lecture + Approbation transactions',
+            editable: true,
+          },
+          {
+            id: 'gui',
+            role: 'Guichetier',
+            membres: '3 agents',
+            permissions: 'Lecture seule + Exécution virements',
+            editable: true,
+          },
+          {
+            id: 'aud',
+            role: 'Auditeur Conformité',
+            membres: '1 agent',
+            permissions: 'Lecture seule + Export SAR',
+            editable: true,
+          },
+          {
+            id: 'it',
+            role: 'Administrateur IT',
+            membres: '1 agent',
+            permissions: 'Accès total',
+            editable: false,
+          },
+        ],
+        makerCheckerPending: [
+          {
+            id: 'mc-1',
+            demande: 'Augmentation plafond virement à 1 000 000 MAD (Client BE123456)',
+            initiateur: 'Agent Joudali',
+            date: '2026-11-13 20:00',
+            statut: 'EN_ATTENTE',
+          },
+          {
+            id: 'mc-2',
+            demande: 'Clôture compte N°3 (Client MC789012)',
+            initiateur: 'Agent Sibous',
+            date: '2026-11-13 18:30',
+            statut: 'EN_ATTENTE',
+          },
+        ],
+        makerCheckerProcessed: [],
+        dashboardChartInstance: null,
+        healthInfo: null,
+      };
+
+      const CLIENT_NAV = [
+        { id: 'dashboard', label: 'Dashboard', title: 'Tableau de Bord Client', icon: 'grid' },
+        { id: 'comptes', label: 'Mes Comptes', title: 'Mes Comptes & Relevés', icon: 'bank' },
+        { id: 'virements', label: 'Virements', title: 'Virements & Paiements', icon: 'send' },
+        { id: 'cartes', label: 'Cartes', title: 'Cartes Bancaires', icon: 'card' },
+        { id: 'profil', label: 'Profil', title: 'Profil KYC & Sécurité', icon: 'user' },
+      ];
+
+      const ADMIN_NAV = [
+        { id: 'admin-dashboard', label: 'Tableau de Bord', title: 'Back-Office — Tableau de Bord Global', icon: 'grid' },
+        { id: 'admin-clients', label: 'Opérations Client', title: 'Back-Office — Opérations Client (KYC 360°)', icon: 'users' },
+        { id: 'admin-transactions', label: 'Transactions', title: 'Back-Office — Clearing & Règlement', icon: 'ledger' },
+        { id: 'admin-fraude', label: 'Fraude & Risques', title: 'Back-Office — Console Fraude & Risques (SIDPEF)', icon: 'shield' },
+        { id: 'admin-audit', label: 'Audit & Sécurité', title: 'Back-Office — Audit, RBAC & 4 Yeux', icon: 'lock' },
+      ];
+
+      /* ---------- Formatting & Utility Functions ---------- */
+      function escapeHtml(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function formatMontant(amount) {
+        const num = Number(amount ?? 0);
+        if (Number.isNaN(num)) return '0,00\u00A0MAD';
+        const isNeg = num < 0;
+        const abs = Math.abs(num);
+        const fixed = abs.toFixed(2);
+        const [intPart, decPart] = fixed.split('.');
+        const spaced = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '\u00A0');
+        return `${isNeg ? '-' : ''}${spaced},${decPart} MAD`;
+      }
+
+      function formatNumberPlain(amount) {
+        const num = Number(amount ?? 0);
+        if (Number.isNaN(num)) return '0,00';
+        const isNeg = num < 0;
+        const abs = Math.abs(num);
+        const [intPart, decPart] = abs.toFixed(2).split('.');
+        const spaced = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '\u00A0');
+        return `${isNeg ? '-' : ''}${spaced},${decPart}`;
+      }
+
+      function formatDate(isoString) {
+        if (!isoString) return '—';
+        const str = String(isoString);
+        const match = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (match) {
+          return `${match[3]}/${match[2]}/${match[1]}`;
+        }
+        const d = new Date(isoString);
+        if (Number.isNaN(d.getTime())) return escapeHtml(str);
+        const dd = String(d.getDate()).padStart(2, '0');
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const yyyy = d.getFullYear();
+        return `${dd}/${mm}/${yyyy}`;
+      }
+
+      function formatDateTime(isoString) {
+        if (!isoString) return '—';
+        const str = String(isoString);
+        const match = str.match(/^(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}:\d{2}:\d{2})/);
+        if (match) {
+          return `${match[3]}/${match[2]}/${match[1]} à ${match[4]}`;
+        }
+        const d = new Date(isoString);
+        if (Number.isNaN(d.getTime())) return escapeHtml(str);
+        const dd = String(d.getDate()).padStart(2, '0');
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const yyyy = d.getFullYear();
+        const hh = String(d.getHours()).padStart(2, '0');
+        const min = String(d.getMinutes()).padStart(2, '0');
+        const ss = String(d.getSeconds()).padStart(2, '0');
+        return `${dd}/${mm}/${yyyy} à ${hh}:${min}:${ss}`;
+      }
+
+      function maskCardNumber(cardNum) {
+        const clean = String(cardNum ?? '').replace(/\s+/g, '');
+        const last4 = clean.slice(-4).padStart(4, '•');
+        return `•••• •••• •••• ${last4}`;
+      }
+
+      function formatFullCardNumber(cardNum) {
+        const clean = String(cardNum ?? '').replace(/\s+/g, '');
+        return clean.replace(/(.{4})/g, '$1 ').trim();
+      }
+
+      function maskAccountNumber(numCompte) {
+        const padded = String(numCompte ?? '0').padStart(4, '0').slice(-4);
+        return `•••• •••• ${padded}`;
+      }
+
+      function statusBadge(status) {
+        const raw = String(status ?? '').toUpperCase();
+        if (['VALIDEE', 'VALIDÉE', 'ACTIF', 'ACTIVE', 'UP', 'APPROUVÉE', 'APPROUVEE', 'LOW', 'FAIBLE'].includes(raw)) {
+          return `<span class="badge badge-success">${escapeHtml(raw)}</span>`;
+        }
+        if (['REJETEE', 'REJETÉE', 'BLOQUEE', 'BLOQUÉE', 'BLOQUÉ', 'EXPIRÉE', 'EXPIREE', 'CLÔTURÉ', 'HIGH', 'ÉLEVÉ'].includes(raw)) {
+          return `<span class="badge badge-danger">${escapeHtml(raw)}</span>`;
+        }
+        if (['EN_ATTENTE', 'EN ATTENTE', 'GELÉE', 'GELEE', 'MEDIUM', 'MOYEN'].includes(raw)) {
+          return `<span class="badge badge-warning">${escapeHtml(raw)}</span>`;
+        }
+        if (['PRINCIPAL', 'LOCAL'].includes(raw)) {
+          return `<span class="badge badge-info">${escapeHtml(raw)}</span>`;
+        }
+        return `<span class="badge badge-neutral">${escapeHtml(raw || 'N/A')}</span>`;
+      }
+
+      function getIconSvg(name) {
+        const icons = {
+          grid: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>',
+          bank: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"></path><path d="M3 10h18"></path><path d="M5 6l7-3 7 3"></path><path d="M4 10v11"></path><path d="M20 10v11"></path><path d="M8 14v3"></path><path d="M12 14v3"></path><path d="M16 14v3"></path></svg>',
+          send: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>',
+          card: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>',
+          user: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>',
+          users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>',
+          ledger: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="17" x2="16" y2="17"></line></svg>',
+          shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>',
+          lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>',
+        };
+        return icons[name] ?? icons.grid;
+      }
+
+      /* ---------- Global Alert & API Wrapper ---------- */
+      function showGlobalApiError(message) {
+        const slot = document.getElementById('global-alert-slot');
+        const text =
+          message ||
+          `⚠ Erreur de communication avec l'API SIDPEF. Vérifiez que le serveur FastAPI est démarré sur ${API_BASE}`;
+        slot.innerHTML = `
+          <div class="alert-banner alert-danger">
+            <div><strong>Incident Réseau / API :</strong> ${escapeHtml(text)}</div>
+            <button type="button" class="btn btn-destructive btn-sm" onclick="refreshCurrentView()">Réessayer</button>
+          </div>
+        `;
+      }
+
+      function clearGlobalAlert() {
+        document.getElementById('global-alert-slot').innerHTML = '';
+      }
+
+      function showGlobalNotice(type, text) {
+        const slot = document.getElementById('global-alert-slot');
+        const cls =
+          type === 'success'
+            ? 'alert-success'
+            : type === 'warning'
+            ? 'alert-warning'
+            : type === 'danger'
+            ? 'alert-danger'
+            : 'alert-info';
+        slot.innerHTML = `
+          <div class="alert-banner ${cls}">
+            <div>${escapeHtml(text)}</div>
+            <button type="button" class="btn btn-neutral btn-sm" onclick="clearGlobalAlert()">Fermer</button>
+          </div>
+        `;
+      }
+
+      async function apiFetch(path, options = {}) {
+        const token = sessionStorage.getItem('sidpef_token');
+        const customHeaders = {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+          ...(options.headers || {}),
+        };
+        options = { ...options, headers: customHeaders };
+        const url = `${API_BASE}${path}`;
+        const t0 = performance.now();
+        let response;
+        try {
+          response = await fetch(url, {
+            headers: {
+              'Content-Type': 'application/json',
+              ...(options.headers || {}),
+            },
+            ...options,
+          });
+        } catch (networkErr) {
+          showGlobalApiError();
+          throw networkErr;
+        }
+        const latencyMs = Math.round(performance.now() - t0);
+
+        let payload = null;
+        const contentType = response.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          try {
+            payload = await response.json();
+          } catch {
+            payload = null;
+          }
+        }
+
+        if (response.status === 401 && !path.includes('/api/auth/login')) {
+          sessionStorage.removeItem('sidpef_token');
+          showLoginScreen('Session expirée ou non autorisée. Veuillez vous identifier.');
+          const err = new Error('Session expirée');
+          err.status = 401;
+          throw err;
+        }
+
+        if (response.status >= 500) {
+          showGlobalApiError();
+          const err = new Error(payload?.detail || `HTTP ${response.status}`);
+          err.status = response.status;
+          err.payload = payload;
+          throw err;
+        }
+
+        if (!response.ok) {
+          const err = new Error(payload?.detail || `HTTP ${response.status}`);
+          err.status = response.status;
+          err.payload = payload;
+          throw err;
+        }
+
+        return { data: payload, latencyMs };
+      }
+
+      async function checkApiHealth() {
+        const dot = document.getElementById('health-dot');
+        const label = document.getElementById('health-label');
+        const meta = document.getElementById('health-meta');
+        try {
+          const { data, latencyMs } = await apiFetch('/api/health');
+          AppState.healthInfo = { ...data, latencyMs };
+          const isUp = String(data?.status).toUpperCase() === 'UP';
+          if (dot) dot.className = `health-dot ${isUp ? 'up' : 'down'}`;
+          if (label) label.textContent = isUp ? 'API: OPÉRATIONNELLE' : 'API: HORS LIGNE';
+          if (meta) meta.textContent = `${data?.database ?? 'banque_centrale_db'} · ${latencyMs} ms`;
+          return AppState.healthInfo;
+        } catch {
+          AppState.healthInfo = null;
+          if (dot) dot.className = 'health-dot down';
+          if (label) label.textContent = 'API: HORS LIGNE';
+          if (meta) meta.textContent = `${API_BASE} injoignable`;
+          return null;
+        }
+      }
+
+      /* ---------- Skeleton Loaders ---------- */
+      function renderSkeleton(kind = 'default') {
+        const container = document.getElementById('main-content');
+        if (kind === 'dashboard') {
+          container.innerHTML = `
+            <div class="metric-grid-4">
+              ${[1, 2, 3, 4]
+                .map(
+                  () => `
+                <div class="metric-card">
+                  <div class="skeleton-bar" style="width: 55%; height: 11px;"></div>
+                  <div class="skeleton-bar" style="width: 80%; height: 22px; margin-top: 10px;"></div>
+                  <div class="skeleton-bar" style="width: 65%; height: 10px; margin-top: 8px;"></div>
+                </div>`
+                )
+                .join('')}
+            </div>
+            <div class="card">
+              <div class="skeleton-bar" style="width: 30%; height: 16px; margin-bottom: 14px;"></div>
+              ${[1, 2, 3, 4, 5]
+                .map(() => `<div class="skeleton-bar" style="width: 100%; height: 28px; margin-bottom: 8px;"></div>`)
+                .join('')}
+            </div>
+          `;
+          return;
+        }
+        container.innerHTML = `
+          <div class="card">
+            <div class="skeleton-bar" style="width: 35%; height: 18px; margin-bottom: 16px;"></div>
+            ${[1, 2, 3, 4, 5, 6]
+              .map(() => `<div class="skeleton-bar" style="width: 100%; height: 26px; margin-bottom: 9px;"></div>`)
+              .join('')}
+          </div>
+        `;
+      }
+
+      /* ---------- Modal Engine ---------- */
+      let modalConfirmHandler = null;
+
+      function openConfirmModal({ title, description, impact, confirmLabel = 'Confirmer', destructive = false, onConfirm }) {
+        document.getElementById('modal-title').textContent = title;
+        document.getElementById('modal-desc').textContent = description;
+        const impactEl = document.getElementById('modal-impact');
+        if (impact) {
+          impactEl.style.display = 'block';
+          impactEl.textContent = impact;
+        } else {
+          impactEl.style.display = 'none';
+        }
+        const btn = document.getElementById('modal-confirm-btn');
+        btn.textContent = confirmLabel;
+        btn.className = `btn ${destructive ? 'btn-destructive' : 'btn-primary'}`;
+        modalConfirmHandler = onConfirm;
+        document.getElementById('confirm-modal').classList.add('open');
+      }
+
+      function closeConfirmModal() {
+        document.getElementById('confirm-modal').classList.remove('open');
+        modalConfirmHandler = null;
+      }
+
+      document.getElementById('modal-confirm-btn').addEventListener('click', () => {
+        const handler = modalConfirmHandler;
+        closeConfirmModal();
+        if (typeof handler === 'function') handler();
+      });
+
+      document.getElementById('confirm-modal').addEventListener('click', (e) => {
+        if (e.target.id === 'confirm-modal') closeConfirmModal();
+      });
+
+      /* ---------- Navigation & Mode Management ---------- */
+      function toggleMobileSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+      }
+
+      function renderSidebarNav() {
+        const navEl = document.getElementById('sidebar-nav');
+        const items = AppState.mode === 'client' ? CLIENT_NAV : ADMIN_NAV;
+        const sectionTitle = AppState.mode === 'client' ? 'Portail Client' : 'Opérations Centrales';
+
+        navEl.innerHTML = `
+          <div class="nav-section-label">${sectionTitle}</div>
+          ${items
+            .map(
+              (item) => `
+            <button
+              type="button"
+              class="nav-item ${AppState.activeSection === item.id ? 'active' : ''}"
+              onclick="navigateTo('${item.id}')"
+            >
+              ${getIconSvg(item.icon)}
+              <span>${escapeHtml(item.label)}</span>
+            </button>
+          `
+            )
+            .join('')}
+        `;
+      }
+
+      function updateTopbar() {
+        const items = AppState.mode === 'client' ? CLIENT_NAV : ADMIN_NAV;
+        const active = items.find((i) => i.id === AppState.activeSection) || items[0];
+        document.getElementById('topbar-title').textContent = active.title;
+
+        const avatarEl = document.getElementById('topbar-avatar');
+        const infoEl = document.getElementById('topbar-user-info');
+
+        if (AppState.mode === 'admin') {
+          avatarEl.textContent = 'OP';
+          infoEl.innerHTML = `Superviseur SIDPEF — <span class="mono">ADMIN-112</span> | Dernière connexion: Aujourd'hui, 20:45`;
+          return;
+        }
+
+        const c =
+          AppState.clientProfile?.client ||
+          AppState.clientsList.find((x) => x.cin === AppState.currentCin);
+        if (c) {
+          const initials = `${(c.prenom || '?')[0]}${(c.nom || '?')[0]}`.toUpperCase();
+          avatarEl.textContent = initials;
+          infoEl.innerHTML = `${escapeHtml(c.prenom)} ${escapeHtml(c.nom)} — CIN: <span class="mono">${escapeHtml(
+            c.cin
+          )}</span> | Dernière connexion: Aujourd'hui, 20:45`;
+        } else {
+          avatarEl.textContent = '--';
+          infoEl.textContent = "Aucun client sélectionné | Dernière connexion: Aujourd'hui, 20:45";
+        }
+      }
+
+      function stopFraudPolling() {
+        if (AppState.fraudPollTimer) {
+          clearInterval(AppState.fraudPollTimer);
+          AppState.fraudPollTimer = null;
+        }
+      }
+
+      function switchMode(newMode) {
+        if (AppState.mode === newMode) return;
+        stopFraudPolling();
+        AppState.mode = newMode;
+        const sidebar = document.getElementById('sidebar');
+        const clientBtn = document.getElementById('mode-btn-client');
+        const adminBtn = document.getElementById('mode-btn-admin');
+        const selectorBox = document.getElementById('client-selector-container');
+
+        if (newMode === 'admin') {
+          sidebar.classList.add('admin-mode');
+          clientBtn.classList.remove('active');
+          adminBtn.classList.add('active');
+          if (selectorBox) selectorBox.style.display = 'none';
+          AppState.activeSection = 'admin-dashboard';
+        } else {
+          sidebar.classList.remove('admin-mode');
+          adminBtn.classList.remove('active');
+          clientBtn.classList.add('active');
+          selectorBox.style.display = 'block';
+          AppState.activeSection = 'dashboard';
+        }
+
+        renderSidebarNav();
+        updateTopbar();
+        renderCurrentSection();
+      }
+
+      function navigateTo(sectionId) {
+        stopFraudPolling();
+        AppState.activeSection = sectionId;
+        document.getElementById('sidebar').classList.remove('open');
+        renderSidebarNav();
+        updateTopbar();
+        renderCurrentSection();
+      }
+
+      async function refreshCurrentView() {
+        clearGlobalAlert();
+        await checkApiHealth();
+        await loadBootstrapLists(true);
+        await renderCurrentSection();
+      }
+
+      /* ---------- Bootstrap Data Loading ---------- */
+      async function loadBootstrapLists(force = false) {
+        try {
+          if (force || AppState.clientsList.length === 0) {
+            const { data: clients } = await apiFetch('/api/clients');
+            AppState.clientsList = Array.isArray(clients) ? clients : [];
+            populateClientDropdown();
+            if (!AppState.currentCin && AppState.clientsList.length > 0) {
+              AppState.currentCin = AppState.clientsList[0].cin;
+              const sel = document.getElementById('client-select'); if (sel) sel.value = AppState.currentCin;
+            }
+          }
+        } catch {
+          populateClientDropdown();
+        }
+
+        try {
+          if (force || AppState.allComptes.length === 0) {
+            const { data: comptes } = await apiFetch('/api/comptes');
+            AppState.allComptes = Array.isArray(comptes) ? comptes : [];
+          }
+        } catch {
+          // Handled by apiFetch banner
+        }
+      }
+
+      function populateClientDropdown() {
+        const select = document.getElementById('client-select');
+        if (!select) return;
+        if (!AppState.clientsList.length) {
+          select.innerHTML = '<option value="">Aucun client disponible</option>';
+          return;
+        }
+        select.innerHTML = AppState.clientsList
+          .map(
+            (c) =>
+              `<option value="${escapeHtml(c.cin)}" ${c.cin === AppState.currentCin ? 'selected' : ''}>${escapeHtml(
+                c.prenom
+              )} ${escapeHtml(c.nom.toUpperCase())} — ${escapeHtml(c.cin)}</option>`
+          )
+          .join('');
+      }
+
+      async function onClientSelectChange(cin) {
+        if (!cin) return;
+        AppState.currentCin = cin;
+        AppState.currentCompteId = null;
+        AppState.clientProfile = null;
+        AppState.currentReleve = [];
+        AppState.filteredReleve = null;
+        AppState.cardIndex = 0;
+        clearGlobalAlert();
+        await renderCurrentSection();
+      }
+
+      async function ensureClientProfile() {
+        if (!AppState.currentCin) {
+          await loadBootstrapLists();
+        }
+        if (!AppState.currentCin) return null;
+
+        try {
+          const { data } = await apiFetch(`/api/clients/${encodeURIComponent(AppState.currentCin)}`);
+          AppState.clientProfile = data;
+          if (!AppState.currentCompteId && data?.comptes?.length > 0) {
+            AppState.currentCompteId = data.comptes[0].num_compte;
+          }
+          updateTopbar();
+          return data;
+        } catch (err) {
+          if (err.status === 404) {
+            document.getElementById('main-content').innerHTML = `
+              <div class="card">
+                <h2 class="card-title">Client introuvable (404)</h2>
+                <p style="margin-top:8px;color:var(--text-secondary);">
+                  ${escapeHtml(err.payload?.detail || `Le client avec le CIN ${AppState.currentCin} est introuvable dans la base centrale.`)}
+                </p>
+              </div>
+            `;
+          }
+          return null;
+        }
+      }
+
+      /* ---------- Section Dispatcher ---------- */
+      async function renderCurrentSection() {
+        clearGlobalAlert();
+        if (AppState.dashboardChartInstance) {
+          AppState.dashboardChartInstance.destroy();
+          AppState.dashboardChartInstance = null;
+        }
+
+        switch (AppState.activeSection) {
+          case 'dashboard':
+            await renderClientDashboard();
+            break;
+          case 'comptes':
+            await renderClientComptes();
+            break;
+          case 'virements':
+            await renderClientVirements();
+            break;
+          case 'cartes':
+            await renderClientCartes();
+            break;
+          case 'profil':
+            await renderClientProfil();
+            break;
+          case 'admin-dashboard':
+            await renderAdminDashboard();
+            break;
+          case 'admin-clients':
+            await renderAdminClients();
+            break;
+          case 'admin-transactions':
+            await renderAdminTransactions();
+            break;
+          case 'admin-fraude':
+            await renderAdminFraude();
+            break;
+          case 'admin-audit':
+            await renderAdminAudit();
+            break;
+          default:
+            await renderClientDashboard();
+        }
+      }
+
+      /* =========================================================================
+         PART 3 — CLIENT PORTAL SECTIONS
+         ========================================================================= */
+
+      /* 3.1 Dashboard */
+      async function renderClientDashboard() {
+        renderSkeleton('dashboard');
+        const profile = await ensureClientProfile();
+        if (!profile) {
+          if (!AppState.currentCin) {
+            document.getElementById('main-content').innerHTML = `
+              <div class="card">
+                <div class="card-title">Aucun client chargé</div>
+                <p style="color:var(--text-secondary);margin-top:8px;">Impossible de récupérer la liste des clients depuis ${escapeHtml(API_BASE)}/api/clients.</p>
+              </div>
+            `;
+          }
+          return;
+        }
+
+        const comptes = profile.comptes || [];
+        const cartes = profile.cartes || [];
+        const clientSummary = AppState.clientsList.find((c) => c.cin === AppState.currentCin);
+
+        const patrimoineNet = comptes.reduce((acc, c) => acc + Number(c.solde || 0), 0);
+        const decouvertTotal = comptes.reduce((acc, c) => acc + Number(c.decouvert_autorise || 0), 0);
+        const cartesActives = cartes.filter((c) => String(c.statut_carte).toUpperCase() === 'ACTIVE').length;
+        const nbComptes = clientSummary?.nb_comptes ?? comptes.length;
+
+        let releve = [];
+        const firstCompteId = comptes[0]?.num_compte;
+        if (firstCompteId != null) {
+          try {
+            const res = await apiFetch(`/api/comptes/${firstCompteId}/releve`);
+            releve = Array.isArray(res.data) ? res.data : [];
+            AppState.currentReleve = releve;
+          } catch (err) {
+            if (err.status !== 404) releve = [];
+          }
+        }
+
+        const recent8 = releve.slice(-8).reverse();
+
+        // Category breakdown from libelle_operation
+        const categories = {
+          Virements: { count: 0, total: 0, color: '#1a3c5e' },
+          Espèces: { count: 0, total: 0, color: '#2563a8' },
+          'Paiements CB': { count: 0, total: 0, color: '#5c85b5' },
+          Autres: { count: 0, total: 0, color: '#94a3b8' },
+        };
+        releve.forEach((m) => {
+          const lib = String(m.libelle_operation || '').toLowerCase();
+          const amt = Number(m.debit ?? m.credit ?? 0);
+          if (lib.includes('virement')) {
+            categories.Virements.count += 1;
+            categories.Virements.total += amt;
+          } else if (lib.includes('espèce') || lib.includes('espece') || lib.includes('retrait') || lib.includes('versement')) {
+            categories.Espèces.count += 1;
+            categories.Espèces.total += amt;
+          } else if (lib.includes('carte') || lib.includes('cb') || lib.includes('paiement') || lib.includes('tpe')) {
+            categories['Paiements CB'].count += 1;
+            categories['Paiements CB'].total += amt;
+          } else {
+            categories.Autres.count += 1;
+            categories.Autres.total += amt;
+          }
+        });
+
+        const totalOpsAmt = Object.values(categories).reduce((s, c) => s + c.total, 0);
+
+        document.getElementById('main-content').innerHTML = `
+          <!-- Row 1: 4 Key Metric Cards -->
+          <div class="metric-grid-4">
+            <div class="metric-card">
+              <div class="label-upper">Patrimoine Net</div>
+              <div class="metric-value">${formatMontant(patrimoineNet)}</div>
+              <div class="metric-sub">Consolidé sur ${nbComptes} compte${nbComptes > 1 ? 's' : ''} actif${nbComptes > 1 ? 's' : ''}</div>
+            </div>
+            <div class="metric-card">
+              <div class="label-upper">Découvert Autorisé</div>
+              <div class="metric-value">${formatMontant(decouvertTotal)}</div>
+              <div class="metric-sub">Ligne de trésorerie disponible</div>
+            </div>
+            <div class="metric-card">
+              <div class="label-upper">Cartes Actives</div>
+              <div class="metric-value">${cartesActives} / ${cartes.length}</div>
+              <div class="metric-sub">Cartes monétiques rattachées</div>
+            </div>
+            <div class="metric-card">
+              <div class="label-upper">Comptes Liés</div>
+              <div class="metric-value">${nbComptes}</div>
+              <div class="metric-sub">${escapeHtml(comptes[0]?.nom_agence || 'Agence Principale')}</div>
+            </div>
+          </div>
+
+          <!-- Row 2: Quick Actions Strip -->
+          <div class="action-strip">
+            <span class="label-upper" style="margin-right: 6px;">Actions rapides :</span>
+            <button type="button" class="btn btn-primary" onclick="navigateTo('virements')">+ Nouveau Virement</button>
+            <button type="button" class="btn btn-secondary" onclick="handleDownloadRib('${escapeHtml(
+              firstCompteId ?? ''
+            )}', '${escapeHtml(comptes[0]?.nom_agence || '')}')">Télécharger RIB</button>
+            <button type="button" class="btn btn-destructive" onclick="navigateTo('cartes')">Bloquer une Carte</button>
+          </div>
+
+          <!-- Row 3: 60/40 Split -->
+          <div class="grid-2-60-40">
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">Activité Récente (Compte N°${escapeHtml(firstCompteId ?? '—')})</h2>
+                <button type="button" class="btn-link" onclick="navigateTo('comptes')">Voir tout le relevé →</button>
+              </div>
+              ${
+                recent8.length === 0
+                  ? '<div style="padding:16px 0;color:var(--text-muted);">Aucun mouvement enregistré sur ce compte.</div>'
+                  : `
+                <div class="table-wrap">
+                  <table class="bank-table">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Référence</th>
+                        <th>Libellé</th>
+                        <th class="num">Débit</th>
+                        <th class="num">Crédit</th>
+                        <th class="num">Solde</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${recent8
+                        .map((m) => {
+                          const isCredit = m.credit != null && Number(m.credit) > 0;
+                          const isNeg = Number(m.solde_cumule) < 0;
+                          const borderClass = isNeg
+                            ? 'border-left-warn'
+                            : isCredit
+                            ? 'border-left-credit'
+                            : 'border-left-debit';
+                          return `
+                            <tr class="${borderClass} ${isNeg ? 'row-neg-balance' : ''}">
+                              <td class="mono" style="white-space:nowrap;">${formatDate(m.date_valeur || m.date_heure)}</td>
+                              <td class="mono" style="white-space:nowrap;">${escapeHtml(m.ref_transaction)}</td>
+                              <td>${escapeHtml(m.libelle_operation)}</td>
+                              <td class="amount-debit">${m.debit != null ? formatNumberPlain(m.debit) : '—'}</td>
+                              <td class="amount-credit">${m.credit != null ? formatNumberPlain(m.credit) : '—'}</td>
+                              <td class="amount-neutral" style="font-weight:600;">${formatMontant(m.solde_cumule)}</td>
+                            </tr>
+                          `;
+                        })
+                        .join('')}
+                    </tbody>
+                  </table>
+                </div>`
+              }
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">Répartition par Type d'Opération</h2>
+                <span class="label-upper">${releve.length} opérations</span>
+              </div>
+              ${
+                releve.length === 0
+                  ? '<div style="padding:16px 0;color:var(--text-muted);">Aucune donnée opérationnelle à ventiler.</div>'
+                  : `
+                <div style="display:flex;flex-direction:column;gap:14px;">
+                  <div style="height:175px;position:relative;display:flex;align-items:center;justify-content:center;">
+                    <canvas id="dashboard-donut-chart"></canvas>
+                  </div>
+                  <div>
+                    ${Object.entries(categories)
+                      .map(([label, cat]) => {
+                        const pct = totalOpsAmt > 0 ? Math.round((cat.total / totalOpsAmt) * 100) : 0;
+                        return `
+                          <div class="cat-bar-row">
+                            <div style="display:flex;justify-content:space-between;font-size:12px;">
+                              <span><strong>${escapeHtml(label)}</strong> <span style="color:var(--text-muted);">(${cat.count})</span></span>
+                              <span class="mono">${pct}% · ${formatMontant(cat.total)}</span>
+                            </div>
+                            <div class="cat-bar-track">
+                              <div class="cat-bar-fill" style="width:${pct}%;background-color:${cat.color};"></div>
+                            </div>
+                          </div>
+                        `;
+                      })
+                      .join('')}
+                  </div>
+                </div>`
+              }
+            </div>
+          </div>
+        `;
+
+        if (releve.length > 0 && typeof window.Chart !== 'undefined') {
+          const canvas = document.getElementById('dashboard-donut-chart');
+          if (canvas) {
+            const labels = Object.keys(categories);
+            const values = Object.values(categories).map((c) => c.total);
+            const colors = Object.values(categories).map((c) => c.color);
+            AppState.dashboardChartInstance = new window.Chart(canvas, {
+              type: 'doughnut',
+              data: {
+                labels,
+                datasets: [
+                  {
+                    data: values,
+                    backgroundColor: colors,
+                    borderWidth: 1,
+                    borderColor: '#ffffff',
+                  },
+                ],
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '64%',
+                plugins: {
+                  legend: {
+                    position: 'right',
+                    labels: {
+                      boxWidth: 10,
+                      font: { family: "'Inter', sans-serif", size: 11 },
+                    },
+                  },
+                },
+              },
+            });
+          }
+        }
+      }
+
+      function handleDownloadRib(compteId, agence) {
+        const msg = `RIB généré pour le compte principal N°${compteId || '1'} (${agence || 'Agence Centrale'}). IBAN: MA64 0078 1000 0000 0000 ${String(
+          compteId || '1'
+        ).padStart(4, '0')} 92.`;
+        showGlobalNotice('info', msg);
+      }
+
+      /* 3.2 Mes Comptes */
+      async function renderClientComptes() {
+        renderSkeleton('default');
+        const profile = await ensureClientProfile();
+        if (!profile) return;
+
+        const comptes = profile.comptes || [];
+        if (!comptes.length) {
+          document.getElementById('main-content').innerHTML = `
+            <div class="card">
+              <div class="card-title">Aucun compte associé</div>
+              <p style="color:var(--text-secondary);margin-top:8px;">Ce client ne dispose d'aucun compte actif.</p>
+            </div>
+          `;
+          return;
+        }
+
+        if (!AppState.currentCompteId || !comptes.some((c) => c.num_compte === AppState.currentCompteId)) {
+          AppState.currentCompteId = comptes[0].num_compte;
+        }
+
+        const selectedCompte = comptes.find((c) => c.num_compte === AppState.currentCompteId) || comptes[0];
+
+        let releve = [];
+        let notFound404 = false;
+        try {
+          const res = await apiFetch(`/api/comptes/${selectedCompte.num_compte}/releve`);
+          releve = Array.isArray(res.data) ? res.data : [];
+          AppState.currentReleve = releve;
+        } catch (err) {
+          if (err.status === 404) notFound404 = true;
+          AppState.currentReleve = [];
+        }
+
+        const displayedRows = AppState.filteredReleve !== null ? AppState.filteredReleve : releve;
+
+        document.getElementById('main-content').innerHTML = `
+          <div class="grid-accounts-split">
+            <!-- Left Panel: Account Cards List -->
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">Comptes du Client (${comptes.length})</h2>
+              </div>
+              ${comptes
+                .map((c) => {
+                  const isSelected = c.num_compte === selectedCompte.num_compte;
+                  return `
+                    <div
+                      class="account-item ${isSelected ? 'selected' : ''}"
+                      onclick="selectClientCompte(${c.num_compte})"
+                    >
+                      <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:4px;">
+                        <strong style="font-size:12.5px;color:var(--accent-primary);">${escapeHtml(c.type_compte)}</strong>
+                        ${statusBadge('ACTIF')}
+                      </div>
+                      <div class="mono" style="font-size:12px;color:var(--text-secondary);margin-bottom:6px;">
+                        ${maskAccountNumber(c.num_compte)} · ${statusBadge(c.role || 'PRINCIPAL')}
+                      </div>
+                      <div style="display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid var(--border-row);padding-top:6px;">
+                        <span class="label-upper">Solde</span>
+                        <span class="mono" style="font-weight:600;font-size:13px;">${formatMontant(c.solde)}</span>
+                      </div>
+                      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:2px;">
+                        <span style="font-size:11px;color:var(--text-muted);">Découvert autorisé</span>
+                        <span class="mono" style="font-size:11px;color:var(--text-secondary);">${formatMontant(c.decouvert_autorise)}</span>
+                      </div>
+                    </div>
+                  `;
+                })
+                .join('')}
+            </div>
+
+            <!-- Right Panel: Account Detail -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h2 class="card-title">${escapeHtml(selectedCompte.type_compte)} — N°<span class="mono">${selectedCompte.num_compte}</span></h2>
+                  <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">
+                    ${escapeHtml(selectedCompte.nom_agence)} · Solde actuel: <strong class="mono" style="color:var(--text-primary);">${formatMontant(
+                      selectedCompte.solde
+                    )}</strong> · Découvert: <span class="mono">${formatMontant(selectedCompte.decouvert_autorise)}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="sub-tabs no-print">
+                <button
+                  type="button"
+                  class="sub-tab-btn ${AppState.accountsTab === 'releve' ? 'active' : ''}"
+                  onclick="switchAccountsTab('releve')"
+                >
+                  Relevé (${releve.length})
+                </button>
+                <button
+                  type="button"
+                  class="sub-tab-btn ${AppState.accountsTab === 'filtres' ? 'active' : ''}"
+                  onclick="switchAccountsTab('filtres')"
+                >
+                  Filtres & Recherche
+                </button>
+              </div>
+
+              ${
+                AppState.accountsTab === 'filtres'
+                  ? `
+                <form id="releve-filter-form" onsubmit="applyReleveFilters(event)" class="no-print" style="margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border-row);">
+                  <div class="grid-2-equal" style="gap:10px;">
+                    <div class="form-group" style="margin-bottom:6px;">
+                      <label class="form-label" for="flt-date-from">Date début</label>
+                      <input type="date" id="flt-date-from" class="form-control" value="${escapeHtml(AppState.releveFilterValues.dateFrom)}" />
+                    </div>
+                    <div class="form-group" style="margin-bottom:6px;">
+                      <label class="form-label" for="flt-date-to">Date fin</label>
+                      <input type="date" id="flt-date-to" class="form-control" value="${escapeHtml(AppState.releveFilterValues.dateTo)}" />
+                    </div>
+                    <div class="form-group" style="margin-bottom:6px;">
+                      <label class="form-label" for="flt-amt-min">Montant min (MAD)</label>
+                      <input type="number" step="0.01" id="flt-amt-min" class="form-control" placeholder="0.00" value="${escapeHtml(AppState.releveFilterValues.amtMin)}" />
+                    </div>
+                    <div class="form-group" style="margin-bottom:6px;">
+                      <label class="form-label" for="flt-amt-max">Montant max (MAD)</label>
+                      <input type="number" step="0.01" id="flt-amt-max" class="form-control" placeholder="100000.00" value="${escapeHtml(AppState.releveFilterValues.amtMax)}" />
+                    </div>
+                    <div class="form-group" style="margin-bottom:6px;">
+                      <label class="form-label" for="flt-type">Type d'opération</label>
+                      <select id="flt-type" class="form-control">
+                        <option value="Tous" ${AppState.releveFilterValues.opType === 'Tous' ? 'selected' : ''}>Tous</option>
+                        <option value="Virement" ${AppState.releveFilterValues.opType === 'Virement' ? 'selected' : ''}>Virement</option>
+                        <option value="Espèces" ${AppState.releveFilterValues.opType === 'Espèces' ? 'selected' : ''}>Espèces</option>
+                        <option value="Carte" ${AppState.releveFilterValues.opType === 'Carte' ? 'selected' : ''}>Carte</option>
+                      </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom:6px;">
+                      <label class="form-label" for="flt-keyword">Mot-clé (libellé / réf.)</label>
+                      <input type="text" id="flt-keyword" class="form-control" placeholder="Ex: Virement, TX-..." value="${escapeHtml(AppState.releveFilterValues.keyword)}" />
+                    </div>
+                  </div>
+                  <div style="display:flex;gap:8px;margin-top:8px;align-items:center;">
+                    <button type="submit" class="btn btn-primary">Appliquer</button>
+                    <button type="button" class="btn btn-neutral" onclick="resetReleveFilters()">Réinitialiser</button>
+                    ${
+                      AppState.filteredReleve !== null
+                        ? `<span style="font-size:12px;color:var(--accent-secondary);font-weight:500;">${displayedRows.length} écriture(s) correspondante(s)</span>`
+                        : ''
+                    }
+                  </div>
+                </form>
+              `
+                  : ''
+              }
+
+              ${
+                notFound404
+                  ? '<div class="alert-banner alert-warning">Aucun relevé trouvé pour ce compte (404).</div>'
+                  : displayedRows.length === 0
+                  ? '<div style="padding:18px 0;color:var(--text-muted);">Aucune écriture comptable à afficher pour les critères sélectionnés.</div>'
+                  : renderReleveTableHtml(displayedRows)
+              }
+
+              <!-- Export Bar -->
+              <div class="no-print" style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border-row);">
+                <button type="button" class="btn btn-neutral" onclick="exportPdfReleve()">Exporter PDF</button>
+                <button type="button" class="btn btn-secondary" onclick="exportCsvReleve(${selectedCompte.num_compte})">Exporter CSV</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      function renderReleveTableHtml(rows) {
+        return `
+          <div class="table-wrap">
+            <table class="bank-table">
+              <thead>
+                <tr>
+                  <th>N° Mvt</th>
+                  <th>Date Valeur</th>
+                  <th>Date/Heure</th>
+                  <th>Référence</th>
+                  <th>Libellé Opération</th>
+                  <th>Canal</th>
+                  <th class="num">Débit (MAD)</th>
+                  <th class="num">Crédit (MAD)</th>
+                  <th class="num">Solde Progressif</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows
+                  .map((m) => {
+                    const isNeg = Number(m.solde_cumule) < 0;
+                    return `
+                      <tr class="${isNeg ? 'row-neg-balance' : ''}">
+                        <td class="mono">${escapeHtml(m.id_mouvement)}</td>
+                        <td class="mono" style="white-space:nowrap;">${formatDate(m.date_valeur)}</td>
+                        <td class="mono" style="white-space:nowrap;">${formatDateTime(m.date_heure)}</td>
+                        <td class="mono" style="white-space:nowrap;">${escapeHtml(m.ref_transaction)}</td>
+                        <td>${escapeHtml(m.libelle_operation)}</td>
+                        <td>${escapeHtml(m.canal)}</td>
+                        <td class="amount-debit">${m.debit != null ? formatNumberPlain(m.debit) : '—'}</td>
+                        <td class="amount-credit">${m.credit != null ? formatNumberPlain(m.credit) : '—'}</td>
+                        <td class="amount-neutral" style="font-weight:600;">${formatMontant(m.solde_cumule)}</td>
+                      </tr>
+                    `;
+                  })
+                  .join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      async function selectClientCompte(numCompte) {
+        AppState.currentCompteId = numCompte;
+        AppState.filteredReleve = null;
+        await renderClientComptes();
+      }
+
+      function switchAccountsTab(tab) {
+        AppState.accountsTab = tab;
+        renderClientComptes();
+      }
+
+      function applyReleveFilters(e) {
+        e.preventDefault();
+        const dateFrom = document.getElementById('flt-date-from').value;
+        const dateTo = document.getElementById('flt-date-to').value;
+        const amtMinRaw = document.getElementById('flt-amt-min').value;
+        const amtMaxRaw = document.getElementById('flt-amt-max').value;
+        const opType = document.getElementById('flt-type').value;
+        const keywordRaw = document.getElementById('flt-keyword').value;
+        const keyword = keywordRaw.trim().toLowerCase();
+
+        AppState.releveFilterValues = {
+          dateFrom,
+          dateTo,
+          amtMin: amtMinRaw,
+          amtMax: amtMaxRaw,
+          opType,
+          keyword: keywordRaw,
+        };
+
+        const amtMin = amtMinRaw !== '' ? Number(amtMinRaw) : null;
+        const amtMax = amtMaxRaw !== '' ? Number(amtMaxRaw) : null;
+
+        const filtered = (AppState.currentReleve || []).filter((m) => {
+          const dv = String(m.date_valeur || String(m.date_heure || '').slice(0, 10));
+          if (dateFrom && dv < dateFrom) return false;
+          if (dateTo && dv > dateTo) return false;
+
+          const opAmt = Number(m.debit ?? m.credit ?? 0);
+          if (amtMin !== null && opAmt < amtMin) return false;
+          if (amtMax !== null && opAmt > amtMax) return false;
+
+          const lib = String(m.libelle_operation || '').toLowerCase();
+          if (opType === 'Virement' && !lib.includes('virement')) return false;
+          if (opType === 'Espèces' && !lib.includes('espèce') && !lib.includes('espece') && !lib.includes('retrait') && !lib.includes('versement'))
+            return false;
+          if (opType === 'Carte' && !lib.includes('carte') && !lib.includes('cb') && !lib.includes('paiement')) return false;
+
+          if (keyword) {
+            const ref = String(m.ref_transaction || '').toLowerCase();
+            if (!lib.includes(keyword) && !ref.includes(keyword)) return false;
+          }
+          return true;
+        });
+
+        AppState.filteredReleve = filtered;
+        renderClientComptes();
+      }
+
+      function resetReleveFilters() {
+        AppState.filteredReleve = null;
+        AppState.releveFilterValues = {
+          dateFrom: '',
+          dateTo: '',
+          amtMin: '',
+          amtMax: '',
+          opType: 'Tous',
+          keyword: '',
+        };
+        renderClientComptes();
+      }
+
+      function exportCsvReleve(compteId, customRows = null) {
+        const rows = customRows || (AppState.filteredReleve !== null ? AppState.filteredReleve : AppState.currentReleve) || [];
+        const headers = [
+          'id_mouvement',
+          'date_valeur',
+          'date_heure',
+          'ref_transaction',
+          'libelle_operation',
+          'canal',
+          'debit',
+          'credit',
+          'solde_cumule',
+        ];
+        const csvLines = [headers.join(';')];
+        rows.forEach((r) => {
+          const vals = headers.map((h) => {
+            const v = r[h] ?? '';
+            const str = String(v).replace(/"/g, '""');
+            return `"${str}"`;
+          });
+          csvLines.push(vals.join(';'));
+        });
+        const csvContent = '\uFEFF' + csvLines.join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `releve_compte_${compteId}_${new Date().toISOString().slice(0, 10)}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+
+      function exportPdfReleve() {
+        showGlobalNotice(
+          'info',
+          'Préparation de l’impression PDF du relevé bancaire (utilisez la destination "Enregistrer au format PDF" de votre navigateur).'
+        );
+        try {
+          window.print();
+        } catch {
+          // Safe fallback inside restricted iframes
+        }
+      }
+
+      /* 3.3 Virements & Paiements */
+      async function renderClientVirements() {
+        renderSkeleton('default');
+        await loadBootstrapLists(true);
+        const profile = await ensureClientProfile();
+
+        const comptes = AppState.allComptes || [];
+        const clientComptes = profile?.comptes || [];
+        const defaultSrc = clientComptes[0]?.num_compte ?? comptes[0]?.num_compte ?? '';
+
+        let recentVirements = [];
+        const targetId = clientComptes[0]?.num_compte ?? defaultSrc;
+        if (targetId) {
+          try {
+            const res = await apiFetch(`/api/comptes/${targetId}/releve`);
+            const allRows = Array.isArray(res.data) ? res.data : [];
+            recentVirements = allRows
+              .filter((m) => String(m.libelle_operation || '').toLowerCase().includes('virement'))
+              .slice(-5)
+              .reverse();
+          } catch {
+            recentVirements = [];
+          }
+        }
+
+        document.getElementById('main-content').innerHTML = `
+          <div class="card" style="margin-bottom:14px;">
+            <div class="card-header">
+              <h2 class="card-title">Ordre de Virement Interne / Domestique</h2>
+              <span class="label-upper">Exécution temps réel</span>
+            </div>
+
+            <div id="virement-feedback-area"></div>
+
+            <form id="virement-form" onsubmit="submitVirementForm(event)">
+              <div class="grid-2-equal">
+                <div class="form-group">
+                  <label class="form-label" for="vir-src">Compte Émetteur</label>
+                  <select id="vir-src" class="form-control" onchange="onVirementSourceChange()">
+                    ${
+                      comptes.length === 0
+                        ? '<option value="">Aucun compte disponible</option>'
+                        : comptes
+                            .map(
+                              (c) => `
+                          <option value="${c.num_compte}" ${Number(c.num_compte) === Number(defaultSrc) ? 'selected' : ''}>
+                            ${escapeHtml(c.type_compte)} (N°${c.num_compte} · ${escapeHtml(c.titulaire)}) — Solde: ${formatMontant(
+                                c.solde
+                              )} (Découvert: ${formatMontant(c.decouvert_autorise)})
+                          </option>`
+                            )
+                            .join('')
+                    }
+                  </select>
+                  <div id="vir-src-error" class="field-error"></div>
+                  <div id="vir-live-balance" style="margin-top:6px;padding:7px 10px;background:#f0f3f7;border:1px solid var(--border-subtle);border-radius:3px;font-size:12px;">
+                    Solde disponible (découvert inclus): <strong class="mono">—</strong>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="vir-dest">Compte Bénéficiaire</label>
+                  <select id="vir-dest" class="form-control"></select>
+                  <div id="vir-dest-error" class="field-error"></div>
+                </div>
+              </div>
+
+              <div class="grid-2-equal">
+                <div class="form-group">
+                  <label class="form-label" for="vir-montant">Montant (MAD)</label>
+                  <input type="number" step="0.01" min="0.01" id="vir-montant" class="form-control mono" placeholder="0.00" />
+                  <div id="vir-montant-error" class="field-error"></div>
+                  <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;">
+                    <button type="button" class="btn btn-neutral btn-sm mono" onclick="addQuickAmount(100)">+100</button>
+                    <button type="button" class="btn btn-neutral btn-sm mono" onclick="addQuickAmount(500)">+500</button>
+                    <button type="button" class="btn btn-neutral btn-sm mono" onclick="addQuickAmount(1000)">+1 000</button>
+                    <button type="button" class="btn btn-neutral btn-sm mono" onclick="addQuickAmount(5000)">+5 000</button>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="vir-canal">Canal d'initiation</label>
+                  <select id="vir-canal" class="form-control">
+                    <option value="WEB">WEB</option>
+                    <option value="MOBILE">MOBILE</option>
+                    <option value="GUICHET">GUICHET</option>
+                    <option value="GAB">GAB</option>
+                    <option value="TPE">TPE</option>
+                  </select>
+
+                  <label class="form-label" for="vir-motif" style="margin-top:10px;">Motif (optionnel)</label>
+                  <input type="text" id="vir-motif" class="form-control" placeholder="Ex: Règlement facture / Dotation" />
+                </div>
+              </div>
+
+              <div style="display:flex;justify-content:flex-end;padding-top:8px;border-top:1px solid var(--border-row);">
+                <button type="submit" id="vir-submit-btn" class="btn btn-primary">Exécuter le Virement →</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Last 5 Virements -->
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">5 Derniers Virements (Compte N°${escapeHtml(targetId || '—')})</h2>
+            </div>
+            ${
+              recentVirements.length === 0
+                ? '<div style="padding:12px 0;color:var(--text-muted);">Aucun virement récent sur ce compte.</div>'
+                : renderReleveTableHtml(recentVirements)
+            }
+          </div>
+        `;
+
+        onVirementSourceChange();
+      }
+
+      function onVirementSourceChange() {
+        const srcSelect = document.getElementById('vir-src');
+        const destSelect = document.getElementById('vir-dest');
+        const liveBal = document.getElementById('vir-live-balance');
+        if (!srcSelect || !destSelect) return;
+
+        const srcId = Number(srcSelect.value);
+        const comptes = AppState.allComptes || [];
+        const srcCompte = comptes.find((c) => Number(c.num_compte) === srcId);
+
+        if (srcCompte && liveBal) {
+          const cap = Number(srcCompte.solde || 0) + Number(srcCompte.decouvert_autorise || 0);
+          liveBal.innerHTML = `Solde disponible (découvert inclus): <strong class="mono">${formatMontant(cap)}</strong>`;
+        }
+
+        const prevDest = destSelect.value;
+        const candidates = comptes.filter((c) => Number(c.num_compte) !== srcId);
+        if (candidates.length === 0) {
+          destSelect.innerHTML = '<option value="">Aucun autre compte bénéficiaire</option>';
+        } else {
+          destSelect.innerHTML = candidates
+            .map(
+              (c) => `
+              <option value="${c.num_compte}" ${String(c.num_compte) === String(prevDest) ? 'selected' : ''}>
+                ${escapeHtml(c.type_compte)} (N°${c.num_compte} · ${escapeHtml(c.titulaire)}) — Solde: ${formatMontant(
+                  c.solde
+                )} (Découvert: ${formatMontant(c.decouvert_autorise)})
+              </option>`
+            )
+            .join('');
+        }
+      }
+
+      function addQuickAmount(delta) {
+        const input = document.getElementById('vir-montant');
+        if (!input) return;
+        const current = parseFloat(input.value) || 0;
+        input.value = (current + delta).toFixed(2);
+        input.classList.remove('invalid');
+        const err = document.getElementById('vir-montant-error');
+        if (err) err.textContent = '';
+      }
+
+      async function submitVirementForm(e) {
+        e.preventDefault();
+        const srcEl = document.getElementById('vir-src');
+        const destEl = document.getElementById('vir-dest');
+        const amtEl = document.getElementById('vir-montant');
+        const canalEl = document.getElementById('vir-canal');
+        const motifEl = document.getElementById('vir-motif');
+        const submitBtn = document.getElementById('vir-submit-btn');
+        const feedbackEl = document.getElementById('virement-feedback-area');
+
+        // Clear prior inline errors
+        [srcEl, destEl, amtEl].forEach((el) => el.classList.remove('invalid'));
+        document.getElementById('vir-src-error').textContent = '';
+        document.getElementById('vir-dest-error').textContent = '';
+        document.getElementById('vir-montant-error').textContent = '';
+        feedbackEl.innerHTML = '';
+
+        const srcId = Number(srcEl.value);
+        const destId = Number(destEl.value);
+        const montant = Number(amtEl.value);
+        const canal = canalEl.value;
+        const motif = motifEl.value.trim();
+
+        let valid = true;
+        if (!srcId) {
+          srcEl.classList.add('invalid');
+          document.getElementById('vir-src-error').textContent = 'Veuillez sélectionner un compte émetteur.';
+          valid = false;
+        }
+        if (!destId) {
+          destEl.classList.add('invalid');
+          document.getElementById('vir-dest-error').textContent = 'Veuillez sélectionner un compte bénéficiaire.';
+          valid = false;
+        }
+        if (srcId && destId && srcId === destId) {
+          destEl.classList.add('invalid');
+          document.getElementById('vir-dest-error').textContent =
+            'Le compte bénéficiaire doit être différent du compte émetteur.';
+          valid = false;
+        }
+        if (Number.isNaN(montant) || montant <= 0) {
+          amtEl.classList.add('invalid');
+          document.getElementById('vir-montant-error').textContent = 'Le montant doit être strictement supérieur à 0.';
+          valid = false;
+        }
+
+        if (!valid) return;
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Traitement en cours...';
+
+        try {
+          const { data } = await apiFetch('/api/virements', {
+            method: 'POST',
+            body: JSON.stringify({
+              compte_source_id: srcId,
+              compte_dest_id: destId,
+              montant,
+              canal,
+            }),
+          });
+
+          if (motif) {
+            AppState.localMotifs.push({ ref: data.ref_transaction, motif });
+          }
+
+          // Refresh global accounts cache silently
+          await loadBootstrapLists(true);
+
+          const formEl = document.getElementById('virement-form');
+          if (formEl) formEl.style.display = 'none';
+
+          feedbackEl.innerHTML = `
+            <div class="alert-banner alert-success" style="display:block;">
+              <div style="font-weight:700;font-size:13px;margin-bottom:6px;">✓ VIREMENT VALIDÉ</div>
+              <div style="margin-bottom:4px;">Référence: <strong class="mono">${escapeHtml(data.ref_transaction)}</strong></div>
+              <div style="margin-bottom:12px;">
+                Montant: <strong class="mono">${formatMontant(data.montant)}</strong> débité du Compte N°<span class="mono">${escapeHtml(
+            data.compte_source_id
+          )}</span> vers Compte N°<span class="mono">${escapeHtml(data.compte_dest_id)}</span>
+                ${motif ? `<div style="margin-top:3px;font-size:11px;">Motif enregistré localement : ${escapeHtml(motif)}</div>` : ''}
+              </div>
+              <div style="display:flex;gap:8px;">
+                <button type="button" class="btn btn-primary" onclick="renderClientVirements()">Effectuer un autre virement</button>
+                <button type="button" class="btn btn-secondary" onclick="navigateTo('comptes')">Voir le relevé</button>
+              </div>
+            </div>
+          `;
+        } catch (err) {
+          if (err.status === 400 || err.status === 422) {
+            const detailMsg =
+              err.payload?.detail ||
+              `Le compte source N°${srcId} ne dispose pas d'une provision suffisante pour couvrir ${formatMontant(
+                montant
+              )} (découvert autorisé inclus). Aucun montant n'a été prélevé.`;
+            feedbackEl.innerHTML = `
+              <div class="alert-banner alert-danger" style="display:block;">
+                <div style="font-weight:700;font-size:13px;margin-bottom:4px;">✗ REJET BANCAIRE — Provision insuffisante</div>
+                <div style="margin-bottom:4px;">${escapeHtml(detailMsg)}</div>
+                <div style="font-size:11px;" class="mono">Référence de l'opération rejetée: [aucune]</div>
+              </div>
+            `;
+          }
+        } finally {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Exécuter le Virement →';
+          }
+        }
+      }
+
+      /* 3.4 Cartes Bancaires */
+      async function renderClientCartes() {
+        renderSkeleton('default');
+        const profile = await ensureClientProfile();
+        if (!profile) return;
+
+        const cartes = profile.cartes || [];
+        const client = profile.client || {};
+        if (cartes.length === 0) {
+          document.getElementById('main-content').innerHTML = `
+            <div class="card">
+              <div class="card-title">Aucune carte bancaire</div>
+              <p style="color:var(--text-secondary);margin-top:8px;">Aucune carte rattachée à ce profil client.</p>
+            </div>
+          `;
+          return;
+        }
+
+        if (AppState.cardIndex >= cartes.length) AppState.cardIndex = 0;
+        const card = cartes[AppState.cardIndex];
+        const cardKey = card.num_carte;
+
+        if (!AppState.cardUiState[cardKey]) {
+          AppState.cardUiState[cardKey] = {
+            online: true,
+            nfc: true,
+            international: false,
+            atm: true,
+            frozen: false,
+            opposed: false,
+            retraitLimit: Number(card.plafond_retrait || 3000),
+            paiementLimit: Number(card.plafond_paiement || 10000),
+            message: null,
+          };
+        }
+
+        const ui = AppState.cardUiState[cardKey];
+        const effectiveStatus = ui.opposed ? 'BLOQUÉE' : ui.frozen ? 'GELÉE' : String(card.statut_carte || 'ACTIVE').toUpperCase();
+        const isNotActive = effectiveStatus !== 'ACTIVE';
+        const network = String(card.num_carte).startsWith('5') ? 'MASTERCARD' : 'VISA';
+        const holderName = `${client.prenom || ''} ${client.nom || ''}`.trim().toUpperCase();
+
+        document.getElementById('main-content').innerHTML = `
+          <div class="card" style="margin-bottom:14px;">
+            <div class="card-header">
+              <h2 class="card-title">Portefeuille Monétique (${cartes.length} carte${cartes.length > 1 ? 's' : ''})</h2>
+              <div style="display:flex;align-items:center;gap:8px;">
+                ${statusBadge(effectiveStatus)}
+              </div>
+            </div>
+
+            ${
+              ui.message
+                ? `<div class="alert-banner alert-success"><div>${escapeHtml(ui.message)}</div><button type="button" class="btn btn-neutral btn-sm" onclick="clearCardMessage('${escapeHtml(
+                    cardKey
+                  )}')">Fermer</button></div>`
+                : ''
+            }
+
+            <div style="display:flex;flex-direction:column;align-items:center;padding:8px 0 14px 0;">
+              <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;justify-content:center;">
+                ${
+                  cartes.length > 1
+                    ? `<button type="button" class="btn btn-neutral" onclick="cycleCard(-1)">‹ Préc.</button>`
+                    : ''
+                }
+                <div class="bank-card-plastic">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;letter-spacing:0.08em;font-size:13px;">SIDPEF BANQUE</span>
+                    <span class="mono" style="font-weight:700;font-size:13px;">${network}</span>
+                  </div>
+                  <div class="chip-rect"></div>
+                  <div class="mono" style="font-size:18px;letter-spacing:0.12em;font-weight:600;">
+                    ${maskCardNumber(card.num_carte)}
+                  </div>
+                  <div style="display:flex;justify-content:space-between;align-items:flex-end;">
+                    <div>
+                      <div style="font-size:9px;opacity:0.75;text-transform:uppercase;">Titulaire</div>
+                      <div style="font-size:12px;font-weight:600;letter-spacing:0.04em;">${escapeHtml(holderName)}</div>
+                    </div>
+                    <div style="text-align:right;">
+                      <div style="font-size:9px;opacity:0.75;text-transform:uppercase;">Expire fin</div>
+                      <div class="mono" style="font-size:12px;font-weight:600;">${formatDate(card.date_expiration)}</div>
+                    </div>
+                  </div>
+                  ${isNotActive ? `<div class="bank-card-overlay">${escapeHtml(effectiveStatus)}</div>` : ''}
+                </div>
+                ${
+                  cartes.length > 1
+                    ? `<button type="button" class="btn btn-neutral" onclick="cycleCard(1)">Suiv. ›</button>`
+                    : ''
+                }
+              </div>
+
+              ${
+                cartes.length > 1
+                  ? `
+                <div style="display:flex;gap:6px;margin-top:10px;">
+                  ${cartes
+                    .map(
+                      (_, idx) => `
+                    <button
+                      type="button"
+                      onclick="selectCardIndex(${idx})"
+                      style="width:10px;height:10px;padding:0;border:none;border-radius:2px;cursor:pointer;background:${
+                        idx === AppState.cardIndex ? 'var(--accent-primary)' : '#cbd5e1'
+                      };"
+                      aria-label="Carte ${idx + 1}"
+                    ></button>
+                  `
+                    )
+                    .join('')}
+                </div>`
+                  : ''
+              }
+            </div>
+          </div>
+
+          <div class="grid-2-equal" style="margin-bottom:14px;">
+            <!-- Controls Panel -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Paramètres d'Utilisation</h3>
+              </div>
+              <div class="grid-2-equal" style="gap:12px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;border:1px solid var(--border-row);border-radius:3px;">
+                  <span style="font-size:12px;font-weight:500;">Paiements en ligne</span>
+                  <label class="switch">
+                    <input type="checkbox" ${ui.online ? 'checked' : ''} onchange="toggleCardSetting('${escapeHtml(cardKey)}', 'online', this.checked)" />
+                    <span class="slider-toggle"></span>
+                  </label>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;border:1px solid var(--border-row);border-radius:3px;">
+                  <span style="font-size:12px;font-weight:500;">Sans contact (NFC)</span>
+                  <label class="switch">
+                    <input type="checkbox" ${ui.nfc ? 'checked' : ''} onchange="toggleCardSetting('${escapeHtml(cardKey)}', 'nfc', this.checked)" />
+                    <span class="slider-toggle"></span>
+                  </label>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;border:1px solid var(--border-row);border-radius:3px;">
+                  <span style="font-size:12px;font-weight:500;">Paiements internationaux</span>
+                  <label class="switch">
+                    <input type="checkbox" ${ui.international ? 'checked' : ''} onchange="toggleCardSetting('${escapeHtml(cardKey)}', 'international', this.checked)" />
+                    <span class="slider-toggle"></span>
+                  </label>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;border:1px solid var(--border-row);border-radius:3px;">
+                  <span style="font-size:12px;font-weight:500;">Retraits GAB</span>
+                  <label class="switch">
+                    <input type="checkbox" ${ui.atm ? 'checked' : ''} onchange="toggleCardSetting('${escapeHtml(cardKey)}', 'atm', this.checked)" />
+                    <span class="slider-toggle"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Limits Panel -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Plafonds Autorisés</h3>
+              </div>
+              <div class="form-group">
+                <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                  <label class="form-label" style="margin:0;">Plafond de retrait hebdomadaire</label>
+                  <span id="lbl-retrait-val" class="mono" style="font-weight:600;">${formatMontant(ui.retraitLimit)}</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="${Number(card.plafond_retrait || 3000)}"
+                  step="100"
+                  value="${ui.retraitLimit}"
+                  style="width:100%;accent-color:var(--accent-primary);"
+                  oninput="updateCardSlider('${escapeHtml(cardKey)}', 'retraitLimit', this.value, 'lbl-retrait-val')"
+                />
+              </div>
+              <div class="form-group">
+                <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                  <label class="form-label" style="margin:0;">Plafond de paiement mensuel</label>
+                  <span id="lbl-paiement-val" class="mono" style="font-weight:600;">${formatMontant(ui.paiementLimit)}</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="${Number(card.plafond_paiement || 10000)}"
+                  step="500"
+                  value="${ui.paiementLimit}"
+                  style="width:100%;accent-color:var(--accent-primary);"
+                  oninput="updateCardSlider('${escapeHtml(cardKey)}', 'paiementLimit', this.value, 'lbl-paiement-val')"
+                />
+              </div>
+              <button type="button" class="btn btn-primary" onclick="saveCardLimits('${escapeHtml(cardKey)}')">
+                Mettre à jour les plafonds
+              </button>
+            </div>
+          </div>
+
+          <!-- Action Buttons Row -->
+          <div class="action-strip">
+            <span class="label-upper" style="margin-right:6px;">Sécurité Carte :</span>
+            <button type="button" class="btn btn-secondary" onclick="toggleFreezeCard('${escapeHtml(cardKey)}')">
+              ${ui.frozen ? 'Débloquer temporairement' : 'Bloquer temporairement'}
+            </button>
+            <button type="button" class="btn btn-destructive" onclick="confirmCardOpposition('${escapeHtml(cardKey)}')" ${
+              ui.opposed ? 'disabled' : ''
+            }>
+              Faire opposition (Perte/Vol)
+            </button>
+            <button type="button" class="btn btn-neutral" onclick="requestCardRenewal('${escapeHtml(cardKey)}')">
+              Demander un renouvellement
+            </button>
+          </div>
+        `;
+      }
+
+      function cycleCard(delta) {
+        const len = AppState.clientProfile?.cartes?.length || 1;
+        AppState.cardIndex = (AppState.cardIndex + delta + len) % len;
+        renderClientCartes();
+      }
+
+      function selectCardIndex(idx) {
+        AppState.cardIndex = idx;
+        renderClientCartes();
+      }
+
+      function toggleCardSetting(cardKey, field, val) {
+        if (AppState.cardUiState[cardKey]) {
+          AppState.cardUiState[cardKey][field] = val;
+        }
+      }
+
+      function updateCardSlider(cardKey, field, val, labelId) {
+        const num = Number(val);
+        if (AppState.cardUiState[cardKey]) {
+          AppState.cardUiState[cardKey][field] = num;
+        }
+        const el = document.getElementById(labelId);
+        if (el) el.textContent = formatMontant(num);
+      }
+
+      function saveCardLimits(cardKey) {
+        const ui = AppState.cardUiState[cardKey];
+        if (!ui) return;
+        ui.message = `Plafonds mis à jour pour la carte ${maskCardNumber(cardKey)} : Retrait ${formatMontant(
+          ui.retraitLimit
+        )} · Paiement ${formatMontant(ui.paiementLimit)}.`;
+        renderClientCartes();
+      }
+
+      function toggleFreezeCard(cardKey) {
+        const ui = AppState.cardUiState[cardKey];
+        if (!ui) return;
+        ui.frozen = !ui.frozen;
+        ui.message = ui.frozen
+          ? `La carte ${maskCardNumber(cardKey)} a été gelée temporairement.`
+          : `La carte ${maskCardNumber(cardKey)} a été réactivée.`;
+        renderClientCartes();
+      }
+
+      function confirmCardOpposition(cardKey) {
+        openConfirmModal({
+          title: 'Confirmer la mise en opposition définitive',
+          description: `Vous êtes sur le point de déclarer la perte ou le vol de la carte ${maskCardNumber(cardKey)}.`,
+          impact: 'Impact immédiat : blocage irréversible de la carte sur les réseaux VISA/CMI et émission d’un dossier de renouvellement.',
+          confirmLabel: 'Confirmer l’opposition',
+          destructive: true,
+          onConfirm: () => {
+            const ui = AppState.cardUiState[cardKey];
+            if (ui) {
+              ui.opposed = true;
+              ui.message = `Opposition enregistrée pour ${maskCardNumber(cardKey)}. La carte est définitivement bloquée.`;
+              renderClientCartes();
+            }
+          },
+        });
+      }
+
+      function requestCardRenewal(cardKey) {
+        const ui = AppState.cardUiState[cardKey];
+        if (!ui) return;
+        ui.message = `Demande de renouvellement transmise pour la carte ${maskCardNumber(cardKey)}. Délai estimé : 5 jours ouvrés en agence.`;
+        renderClientCartes();
+      }
+
+      function clearCardMessage(cardKey) {
+        if (AppState.cardUiState[cardKey]) {
+          AppState.cardUiState[cardKey].message = null;
+          renderClientCartes();
+        }
+      }
+
+      /* 3.5 Profil & Sécurité */
+      async function renderClientProfil(editMode = false) {
+        renderSkeleton('default');
+        const profile = await ensureClientProfile();
+        if (!profile) return;
+
+        const rawClient = profile.client || {};
+        const override = AppState.kycOverrides[rawClient.cin] || {};
+        const c = { ...rawClient, ...override };
+        const agence = profile.comptes?.[0]?.nom_agence || 'Agence Centrale';
+
+        document.getElementById('main-content').innerHTML = `
+          <div class="grid-2-equal">
+            <!-- Left: KYC -->
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">Données KYC & Identification</h2>
+                ${statusBadge('VÉRIFIÉ')}
+              </div>
+              <div id="kyc-feedback"></div>
+              ${
+                editMode
+                  ? `
+                <form onsubmit="saveKycInline(event)">
+                  <div class="form-group">
+                    <label class="form-label">Nom complet</label>
+                    <input type="text" class="form-control" value="${escapeHtml(c.prenom)} ${escapeHtml(c.nom)}" disabled />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="kyc-email" class="form-control" value="${escapeHtml(c.email)}" required />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Téléphone</label>
+                    <input type="text" id="kyc-tel" class="form-control mono" value="${escapeHtml(c.telephone)}" required />
+                  </div>
+                  <div style="display:flex;gap:8px;margin-top:12px;">
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    <button type="button" class="btn btn-neutral" onclick="renderClientProfil(false)">Annuler</button>
+                  </div>
+                </form>`
+                  : `
+                <dl class="kyc-dl">
+                  <dt>Nom complet</dt>
+                  <dd><strong>${escapeHtml(c.prenom)} ${escapeHtml(c.nom)}</strong></dd>
+                  <dt>CIN</dt>
+                  <dd class="mono">${escapeHtml(c.cin)}</dd>
+                  <dt>Date de naissance</dt>
+                  <dd class="mono">${formatDate(c.date_naissance)}</dd>
+                  <dt>Email</dt>
+                  <dd>${escapeHtml(c.email)}</dd>
+                  <dt>Téléphone</dt>
+                  <dd class="mono">${escapeHtml(c.telephone)}</dd>
+                  <dt>Agence de domiciliation</dt>
+                  <dd>${escapeHtml(agence)}</dd>
+                </dl>
+                <div style="margin-top:14px;">
+                  <button type="button" class="btn btn-secondary" onclick="renderClientProfil(true)">Modifier</button>
+                </div>`
+              }
+            </div>
+
+            <!-- Right: Security & Sessions -->
+            <div style="display:flex;flex-direction:column;gap:14px;">
+              <div class="card">
+                <div class="card-header">
+                  <h2 class="card-title">Sécurité & Authentification</h2>
+                </div>
+                <div id="pwd-feedback"></div>
+                <form onsubmit="submitPasswordChange(event)" style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border-row);">
+                  <div class="form-group">
+                    <label class="form-label" for="pwd-cur">Mot de passe actuel</label>
+                    <input type="password" id="pwd-cur" class="form-control" required />
+                  </div>
+                  <div class="grid-2-equal" style="gap:10px;">
+                    <div class="form-group">
+                      <label class="form-label" for="pwd-new">Nouveau mot de passe</label>
+                      <input type="password" id="pwd-new" class="form-control" required />
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="pwd-conf">Confirmer</label>
+                      <input type="password" id="pwd-conf" class="form-control" required />
+                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary btn-sm">Mettre à jour le mot de passe</button>
+                </form>
+
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <div>
+                    <div style="font-weight:600;font-size:12.5px;">Authentification Forte (2FA)</div>
+                    <div id="twofa-desc" style="font-size:12px;color:var(--text-secondary);">
+                      ${
+                        AppState.twoFactorEnabled
+                          ? 'Activé via SMS (+212 6•••••3344)'
+                          : 'Désactivé — Activation recommandée'
+                      }
+                    </div>
+                  </div>
+                  <label class="switch">
+                    <input type="checkbox" ${AppState.twoFactorEnabled ? 'checked' : ''} onchange="toggle2fa(this.checked)" />
+                    <span class="slider-toggle"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header">
+                  <h2 class="card-title">Sessions Actives</h2>
+                  <span class="label-upper">${AppState.sessions.length} active(s)</span>
+                </div>
+                ${
+                  AppState.sessions.length === 0
+                    ? '<div style="color:var(--text-muted);padding:8px 0;">Aucune session distante active.</div>'
+                    : `
+                  <div class="table-wrap">
+                    <table class="bank-table">
+                      <thead>
+                        <tr>
+                          <th>Terminal / Navigateur</th>
+                          <th>Adresse IP</th>
+                          <th>Dernière activité</th>
+                          <th class="num">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        ${AppState.sessions
+                          .map(
+                            (s) => `
+                          <tr id="sess-row-${s.id}" style="transition:opacity 0.15s ease;">
+                            <td>${escapeHtml(s.device)}</td>
+                            <td class="mono">${escapeHtml(s.ip)}</td>
+                            <td>${escapeHtml(s.lastActive)}</td>
+                            <td class="num">
+                              <button type="button" class="btn btn-destructive btn-sm" onclick="revokeSession('${s.id}')">Révoquer</button>
+                            </td>
+                          </tr>
+                        `
+                          )
+                          .join('')}
+                      </tbody>
+                    </table>
+                  </div>`
+                }
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      function saveKycInline(e) {
+        e.preventDefault();
+        const email = document.getElementById('kyc-email').value.trim();
+        const tel = document.getElementById('kyc-tel').value.trim();
+        const cin = AppState.clientProfile?.client?.cin;
+        if (cin) {
+          AppState.kycOverrides[cin] = { email, telephone: tel };
+        }
+        renderClientProfil(false).then(() => {
+          const fb = document.getElementById('kyc-feedback');
+          if (fb) {
+            fb.innerHTML = `<div class="alert-banner alert-success">Coordonnées de contact mises à jour dans la session courante.</div>`;
+          }
+        });
+      }
+
+      function submitPasswordChange(e) {
+        e.preventDefault();
+        const pNew = document.getElementById('pwd-new').value;
+        const pConf = document.getElementById('pwd-conf').value;
+        const fb = document.getElementById('pwd-feedback');
+        if (pNew.length < 6) {
+          fb.innerHTML = `<div class="alert-banner alert-danger">Le nouveau mot de passe doit contenir au moins 6 caractères.</div>`;
+          return;
+        }
+        if (pNew !== pConf) {
+          fb.innerHTML = `<div class="alert-banner alert-danger">Les deux saisies du nouveau mot de passe ne correspondent pas.</div>`;
+          return;
+        }
+        fb.innerHTML = `<div class="alert-banner alert-success">Mot de passe modifié avec succès.</div>`;
+        e.target.reset();
+      }
+
+      function toggle2fa(checked) {
+        AppState.twoFactorEnabled = checked;
+        const desc = document.getElementById('twofa-desc');
+        if (desc) {
+          desc.textContent = checked ? 'Activé via SMS (+212 6•••••3344)' : 'Désactivé — Activation recommandée';
+        }
+      }
+
+      function revokeSession(sessionId) {
+        const row = document.getElementById(`sess-row-${sessionId}`);
+        if (row) {
+          row.style.opacity = '0';
+          setTimeout(() => {
+            AppState.sessions = AppState.sessions.filter((s) => s.id !== sessionId);
+            renderClientProfil(false);
+          }, 150);
+        }
+      }
+
+      /* =========================================================================
+         PART 4 — ADMIN BACK-OFFICE SECTIONS
+         ========================================================================= */
+
+      /* 4.1 Tableau de Bord Admin */
+      async function renderAdminDashboard() {
+        renderSkeleton('dashboard');
+
+        let health = null;
+        let clients = [];
+        let anomalies = [];
+        let ledger1 = [];
+
+        try {
+          health = await checkApiHealth();
+        } catch {
+          health = null;
+        }
+
+        try {
+          const [cRes, aRes, rRes] = await Promise.allSettled([
+            apiFetch('/api/clients'),
+            apiFetch('/api/audit/anomalies'),
+            apiFetch('/api/comptes/1/releve'),
+          ]);
+
+          if (cRes.status === 'fulfilled') {
+            clients = Array.isArray(cRes.value.data) ? cRes.value.data : [];
+            AppState.clientsList = clients;
+          }
+          if (aRes.status === 'fulfilled') {
+            anomalies = Array.isArray(aRes.value.data) ? aRes.value.data : [];
+            AppState.adminAnomalies = anomalies;
+          }
+          if (rRes.status === 'fulfilled') {
+            ledger1 = Array.isArray(rRes.value.data) ? rRes.value.data : [];
+          }
+        } catch {
+          // handled
+        }
+
+        const rejectedCount = anomalies.filter((a) => String(a.statut_trans).toUpperCase() === 'REJETEE').length;
+        const pendingCount = anomalies.filter((a) => String(a.statut_trans).toUpperCase() === 'EN_ATTENTE').length;
+        const topAlerts = anomalies.slice(0, 5);
+        const last10Ledger = ledger1.slice(-10).reverse();
+
+        document.getElementById('main-content').innerHTML = `
+          <!-- Row 1: 4 Live Metrics -->
+          <div class="metric-grid-4">
+            <div class="metric-card">
+              <div class="label-upper">API Latence</div>
+              <div class="metric-value">${health ? `${health.latencyMs} ms` : 'HORS LIGNE'}</div>
+              <div class="metric-sub">${health ? `${escapeHtml(health.database)} · MySQL ${escapeHtml(health.mysql_version)}` : 'Serveur injoignable'}</div>
+            </div>
+            <div class="metric-card">
+              <div class="label-upper">Clients Actifs</div>
+              <div class="metric-value">${clients.length}</div>
+              <div class="metric-sub">Base centrale SIDPEF</div>
+            </div>
+            <div class="metric-card">
+              <div class="label-upper">Transactions Rejetées Aujourd'hui</div>
+              <div class="metric-value" style="color:var(--danger-text);">${rejectedCount}</div>
+              <div class="metric-sub">Rejets provision / sécurité</div>
+            </div>
+            <div class="metric-card">
+              <div class="label-upper">Opérations en Attente</div>
+              <div class="metric-value" style="color:var(--warning-text);">${pendingCount}</div>
+              <div class="metric-sub">En file de validation</div>
+            </div>
+          </div>
+
+          <!-- Row 2: Alert Center -->
+          <div class="card" style="margin-bottom:14px;">
+            <div class="card-header">
+              <h2 class="card-title">Centre d'Alertes SIDPEF (5 dernières anomalies)</h2>
+              <button type="button" class="btn-link" onclick="navigateTo('admin-fraude')">Voir toutes les anomalies →</button>
+            </div>
+            ${
+              topAlerts.length === 0
+                ? '<div style="color:var(--text-muted);padding:8px 0;">Aucune alerte d’anomalie remontée par l’API.</div>'
+                : `
+              <div style="display:flex;flex-direction:column;gap:6px;">
+                ${topAlerts
+                  .map((a) => {
+                    const st = String(a.statut_trans).toUpperCase();
+                    if (st === 'REJETEE') {
+                      return `
+                        <div class="alert-banner alert-danger" style="margin-bottom:0;padding:8px 12px;">
+                          <div>
+                            ${statusBadge('REJETÉE')}
+                            Transaction <strong class="mono">${escapeHtml(a.ref_transaction)}</strong> rejetée pour provision insuffisante —
+                            <strong class="mono">${formatMontant(a.montant_operation)}</strong> — IP: <span class="mono">${escapeHtml(a.ip_source)}</span>
+                          </div>
+                          <span class="mono" style="font-size:11px;white-space:nowrap;">${formatDateTime(a.date_heure)}</span>
+                        </div>
+                      `;
+                    }
+                    return `
+                      <div class="alert-banner alert-warning" style="margin-bottom:0;padding:8px 12px;">
+                        <div>
+                          ${statusBadge('EN_ATTENTE')}
+                          Transaction <strong class="mono">${escapeHtml(a.ref_transaction)}</strong> en attente de validation —
+                          <strong class="mono">${formatMontant(a.montant_operation)}</strong>
+                        </div>
+                        <span class="mono" style="font-size:11px;white-space:nowrap;">${formatDateTime(a.date_heure)}</span>
+                      </div>
+                    `;
+                  })
+                  .join('')}
+              </div>`
+            }
+          </div>
+
+          <!-- Row 3: Live Ledger Preview -->
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">GRAND LIVRE — Dernières écritures (Compte Principal N°1)</h2>
+              <button type="button" class="btn-link" onclick="navigateTo('admin-transactions')">Ouvrir le Grand Livre complet →</button>
+            </div>
+            ${
+              last10Ledger.length === 0
+                ? '<div style="color:var(--text-muted);padding:12px 0;">Aucune écriture comptable disponible sur le compte N°1.</div>'
+                : renderReleveTableHtml(last10Ledger)
+            }
+          </div>
+        `;
+      }
+
+      /* 4.2 Opérations Client (KYC & Onboarding) */
+      let adminSearchDebounce = null;
+
+      async function renderAdminClients() {
+        renderSkeleton('default');
+        await loadBootstrapLists(true);
+        const clients = AppState.clientsList || [];
+        if (!AppState.adminSelectedCin && clients.length > 0) {
+          AppState.adminSelectedCin = clients[0].cin;
+        }
+
+        document.getElementById('main-content').innerHTML = `
+          <div class="card" style="margin-bottom:14px;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label" for="admin-omnibar">Recherche Client Omnibar (Nom, Prénom, CIN, Email, Téléphone)</label>
+              <input
+                type="text"
+                id="admin-omnibar"
+                class="form-control"
+                placeholder="Tapez un nom, un CIN (ex: BE123456), un email ou un numéro de téléphone..."
+                oninput="onAdminOmnibarInput(this.value)"
+              />
+            </div>
+          </div>
+
+          <div class="grid-accounts-split">
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">Résultats (<span id="admin-client-count">${clients.length}</span>)</h2>
+              </div>
+              <div id="admin-client-list"></div>
+            </div>
+
+            <div id="admin-client-360-panel" class="card">
+              <div style="color:var(--text-muted);">Sélectionnez un client pour afficher son dossier 360°.</div>
+            </div>
+          </div>
+        `;
+
+        renderAdminClientResults(clients);
+        if (AppState.adminSelectedCin) {
+          await loadAdminClient360(AppState.adminSelectedCin);
+        }
+      }
+
+      function filterAndRenderAdminClients(query) {
+        const q = query.trim().toLowerCase();
+        const filtered = (AppState.clientsList || []).filter((c) => {
+          if (!q) return true;
+          return (
+            String(c.nom || '').toLowerCase().includes(q) ||
+            String(c.prenom || '').toLowerCase().includes(q) ||
+            String(c.cin || '').toLowerCase().includes(q) ||
+            String(c.email || '').toLowerCase().includes(q) ||
+            String(c.telephone || '').toLowerCase().includes(q)
+          );
+        });
+        renderAdminClientResults(filtered);
+      }
+
+      function onAdminOmnibarInput(query) {
+        clearTimeout(adminSearchDebounce);
+        adminSearchDebounce = setTimeout(() => {
+          filterAndRenderAdminClients(query);
+        }, 300);
+      }
+
+      function renderAdminClientResults(list) {
+        const listEl = document.getElementById('admin-client-list');
+        const countEl = document.getElementById('admin-client-count');
+        if (countEl) countEl.textContent = list.length;
+        if (!listEl) return;
+
+        if (list.length === 0) {
+          listEl.innerHTML = '<div style="color:var(--text-muted);padding:10px 0;">Aucun client ne correspond à cette recherche.</div>';
+          return;
+        }
+
+        listEl.innerHTML = list
+          .map(
+            (c) => `
+          <div
+            class="account-item ${c.cin === AppState.adminSelectedCin ? 'selected' : ''}"
+            onclick="loadAdminClient360('${escapeHtml(c.cin)}')"
+          >
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <strong style="color:var(--accent-primary);">${escapeHtml(c.prenom)} ${escapeHtml(c.nom)}</strong>
+              <span class="mono" style="font-size:11px;color:var(--text-muted);">${escapeHtml(c.cin)}</span>
+            </div>
+            <div style="font-size:11.5px;color:var(--text-secondary);margin-top:3px;">${escapeHtml(c.email)}</div>
+            <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:11px;">
+              <span>${c.nb_comptes} compte(s)</span>
+              <span class="mono" style="font-weight:600;">${formatMontant(c.solde_total)}</span>
+            </div>
+          </div>
+        `
+          )
+          .join('');
+      }
+
+      async function loadAdminClient360(cin) {
+        AppState.adminSelectedCin = cin;
+        const panel = document.getElementById('admin-client-360-panel');
+        if (!panel) return;
+
+        // Update selection highlight in list immediately
+        const currentQuery = document.getElementById('admin-omnibar')?.value || '';
+        filterAndRenderAdminClients(currentQuery);
+
+        panel.innerHTML = `
+          <div class="skeleton-bar" style="width:45%;height:18px;margin-bottom:12px;"></div>
+          <div class="skeleton-bar" style="width:100%;height:26px;margin-bottom:8px;"></div>
+          <div class="skeleton-bar" style="width:100%;height:26px;margin-bottom:8px;"></div>
+        `;
+
+        try {
+          const { data } = await apiFetch(`/api/clients/${encodeURIComponent(cin)}`);
+          const c = data.client || {};
+          const comptes = data.comptes || [];
+          const cartes = data.cartes || [];
+
+          let hist15 = [];
+          if (comptes[0]?.num_compte != null) {
+            try {
+              const r = await apiFetch(`/api/comptes/${comptes[0].num_compte}/releve`);
+              hist15 = (Array.isArray(r.data) ? r.data : []).slice(-15).reverse();
+            } catch {
+              hist15 = [];
+            }
+          }
+
+          const riskLevels = ['LOW', 'MEDIUM', 'HIGH'];
+          const risk = riskLevels[(Number(c.num_client || 1) - 1) % 3];
+
+          panel.innerHTML = `
+            <div id="admin-client-action-feedback"></div>
+
+            <!-- Header -->
+            <div class="card-header">
+              <div>
+                <h2 class="card-title" style="font-size:16px;">${escapeHtml(c.prenom)} ${escapeHtml(c.nom)}</h2>
+                <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">
+                  Client N°<span class="mono">${escapeHtml(c.num_client)}</span> · CIN: <span class="mono">${escapeHtml(c.cin)}</span>
+                </div>
+              </div>
+              <div style="display:flex;gap:6px;align-items:center;">
+                <span class="label-upper">Risque :</span> ${statusBadge(risk)}
+                <span class="badge badge-neutral">Non-PEP</span>
+              </div>
+            </div>
+
+            <!-- Identité -->
+            <div style="margin-bottom:16px;">
+              <div class="label-upper" style="margin-bottom:6px;">Identité KYC</div>
+              <dl class="kyc-dl">
+                <dt>Nom / Prénom</dt>
+                <dd>${escapeHtml(c.nom)} ${escapeHtml(c.prenom)}</dd>
+                <dt>CIN</dt>
+                <dd class="mono">${escapeHtml(c.cin)}</dd>
+                <dt>Date de naissance</dt>
+                <dd class="mono">${formatDate(c.date_naissance)}</dd>
+                <dt>Email</dt>
+                <dd>${escapeHtml(c.email)}</dd>
+                <dt>Téléphone</dt>
+                <dd class="mono">${escapeHtml(c.telephone)}</dd>
+              </dl>
+            </div>
+
+            <!-- Comptes associés -->
+            <div style="margin-bottom:16px;">
+              <div class="label-upper" style="margin-bottom:6px;">Comptes Associés (${comptes.length})</div>
+              <div class="table-wrap">
+                <table class="bank-table">
+                  <thead>
+                    <tr>
+                      <th>N° Compte</th>
+                      <th>Type</th>
+                      <th>Agence</th>
+                      <th>Rôle</th>
+                      <th>Statut</th>
+                      <th>Date ouverture</th>
+                      <th class="num">Découvert</th>
+                      <th class="num">Solde</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${comptes
+                      .map(
+                        (cp) => `
+                      <tr>
+                        <td class="mono">${escapeHtml(cp.num_compte)}</td>
+                        <td>${escapeHtml(cp.type_compte)}</td>
+                        <td>${escapeHtml(cp.nom_agence)}</td>
+                        <td>${statusBadge(cp.role || 'PRINCIPAL')}</td>
+                        <td>${statusBadge('ACTIF')}</td>
+                        <td class="mono">15/01/2022</td>
+                        <td class="amount-neutral">${formatMontant(cp.decouvert_autorise)}</td>
+                        <td class="amount-neutral" style="font-weight:600;">${formatMontant(cp.solde)}</td>
+                      </tr>
+                    `
+                      )
+                      .join('')}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Cartes associées (Unmasked Admin View) -->
+            <div style="margin-bottom:16px;">
+              <div class="label-upper" style="margin-bottom:6px;">Cartes Associées — Vue Opérateur Non Masquée (${cartes.length})</div>
+              <div class="table-wrap">
+                <table class="bank-table">
+                  <thead>
+                    <tr>
+                      <th>Numéro Complet (PAN)</th>
+                      <th>Expiration</th>
+                      <th>Statut</th>
+                      <th class="num">Plafond Paiement</th>
+                      <th class="num">Plafond Retrait</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${
+                      cartes.length === 0
+                        ? '<tr><td colspan="5" style="color:var(--text-muted);">Aucune carte associée</td></tr>'
+                        : cartes
+                            .map(
+                              (ca) => `
+                        <tr style="background:#fdfbf5;">
+                          <td class="mono" style="font-weight:600;color:var(--accent-primary);">${formatFullCardNumber(ca.num_carte)}</td>
+                          <td class="mono">${formatDate(ca.date_expiration)}</td>
+                          <td>${statusBadge(ca.statut_carte)}</td>
+                          <td class="amount-neutral">${formatMontant(ca.plafond_paiement)}</td>
+                          <td class="amount-neutral">${formatMontant(ca.plafond_retrait)}</td>
+                        </tr>
+                      `
+                            )
+                            .join('')
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Historique consolidé (15 entries) -->
+            <div style="margin-bottom:16px;">
+              <div class="label-upper" style="margin-bottom:6px;">Historique Consolidé (15 dernières écritures)</div>
+              ${
+                hist15.length === 0
+                  ? '<div style="color:var(--text-muted);">Aucun mouvement récent.</div>'
+                  : renderReleveTableHtml(hist15)
+              }
+            </div>
+
+            <!-- Demandes de service -->
+            <div style="margin-bottom:16px;">
+              <div class="label-upper" style="margin-bottom:6px;">Demandes de Service en Cours</div>
+              <table class="bank-table">
+                <thead>
+                  <tr>
+                    <th>Demande</th>
+                    <th>Statut / Délai</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Chéquier en cours d'impression</td>
+                    <td>${statusBadge('EN_ATTENTE')} <span style="margin-left:6px;font-size:11px;color:var(--text-muted);">3 jours restants</span></td>
+                  </tr>
+                  <tr>
+                    <td>Carte de remplacement demandée</td>
+                    <td>${statusBadge('EN_ATTENTE')} <span style="margin-left:6px;font-size:11px;color:var(--text-muted);">En transit</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Admin Actions -->
+            <div style="display:flex;flex-wrap:wrap;gap:8px;padding-top:12px;border-top:1px solid var(--border-row);">
+              <button type="button" class="btn btn-primary" onclick="confirmAdminClientAction('open', '${escapeHtml(c.cin)}')">
+                Ouvrir un compte
+              </button>
+              <button type="button" class="btn btn-destructive" onclick="confirmAdminClientAction('block', '${escapeHtml(c.cin)}')">
+                Bloquer le client
+              </button>
+              <button type="button" class="btn btn-secondary" onclick="confirmAdminClientAction('kyc', '${escapeHtml(c.cin)}')">
+                Générer un rapport KYC
+              </button>
+            </div>
+          `;
+        } catch (err) {
+          if (err.status === 404) {
+            panel.innerHTML = `<div class="alert-banner alert-warning">${escapeHtml(
+              err.payload?.detail || `Client ${cin} introuvable (404).`
+            )}</div>`;
+          }
+        }
+      }
+
+      function confirmAdminClientAction(action, cin) {
+        const cfg = {
+          open: {
+            title: 'Ouverture d’un nouveau compte bancaire',
+            description: `Confirmer l'initialisation d'un nouveau compte pour le client CIN ${cin}.`,
+            impact: 'Création d’un dossier de souscription rattaché à l’agence centrale.',
+            destructive: false,
+            msg: `Demande d'ouverture de compte enregistrée pour le client ${cin}.`,
+          },
+          block: {
+            title: 'Blocage administratif du client',
+            description: `Confirmer le gel complet des accès et instruments du client CIN ${cin}.`,
+            impact: 'Suspension immédiate des virements sortants et des cartes actives.',
+            destructive: true,
+            msg: `Alerte de blocage administratif appliquée sur le dossier client ${cin}.`,
+          },
+          kyc: {
+            title: 'Génération du rapport réglementaire KYC',
+            description: `Exporter la synthèse de conformité LAB/FT pour le client CIN ${cin}.`,
+            impact: 'Horodatage du rapport dans la piste d’audit interne.',
+            destructive: false,
+            msg: `Rapport KYC généré et archivé pour le client ${cin} (Réf: KYC-${Date.now().toString().slice(-6)}).`,
+          },
+        }[action];
+
+        openConfirmModal({
+          ...cfg,
+          onConfirm: () => {
+            const fb = document.getElementById('admin-client-action-feedback');
+            if (fb) {
+              fb.innerHTML = `<div class="alert-banner alert-success">${escapeHtml(cfg.msg)}</div>`;
+            }
+          },
+        });
+      }
+
+      /* 4.3 Transactions (Clearing & Settlement) */
+      async function renderAdminTransactions() {
+        renderSkeleton('default');
+        await loadBootstrapLists(true);
+
+        const comptes = AppState.allComptes || [];
+        const activeCompteId = AppState.currentCompteId || comptes[0]?.num_compte || 1;
+
+        document.getElementById('main-content').innerHTML = `
+          <div class="card">
+            <div class="sub-tabs">
+              <button
+                type="button"
+                class="sub-tab-btn ${AppState.adminTab === 'grand-livre' ? 'active' : ''}"
+                onclick="switchAdminTxTab('grand-livre')"
+              >
+                Grand Livre
+              </button>
+              <button
+                type="button"
+                class="sub-tab-btn ${AppState.adminTab === 'suspens' ? 'active' : ''}"
+                onclick="switchAdminTxTab('suspens')"
+              >
+                Suspens & Extournes
+              </button>
+              <button
+                type="button"
+                class="sub-tab-btn ${AppState.adminTab === 'batch' ? 'active' : ''}"
+                onclick="switchAdminTxTab('batch')"
+              >
+                Traitements Batch
+              </button>
+            </div>
+            <div id="admin-tx-body"></div>
+          </div>
+        `;
+
+        if (AppState.adminTab === 'grand-livre') {
+          await renderAdminGrandLivre(activeCompteId);
+        } else if (AppState.adminTab === 'suspens') {
+          await renderAdminSuspens();
+        } else {
+          renderAdminBatch();
+        }
+      }
+
+      function switchAdminTxTab(tab) {
+        AppState.adminTab = tab;
+        renderAdminTransactions();
+      }
+
+      async function renderAdminGrandLivre(compteId) {
+        const body = document.getElementById('admin-tx-body');
+        const comptes = AppState.allComptes || [];
+        let rows = [];
+        try {
+          const res = await apiFetch(`/api/comptes/${compteId}/releve`);
+          rows = Array.isArray(res.data) ? res.data : [];
+          AppState.currentReleve = rows;
+        } catch {
+          rows = [];
+        }
+
+        const totalDebits = rows.reduce((s, r) => s + Number(r.debit || 0), 0);
+        const totalCredits = rows.reduce((s, r) => s + Number(r.credit || 0), 0);
+        const finalBalance = rows.length > 0 ? rows[rows.length - 1].solde_cumule : 0;
+
+        body.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:14px;flex-wrap:wrap;">
+            <div class="form-group" style="margin-bottom:0;min-width:340px;flex:1;max-width:520px;">
+              <label class="form-label" for="gl-compte-select">Sélectionner un Compte du Grand Livre</label>
+              <select id="gl-compte-select" class="form-control" onchange="onGrandLivreCompteChange(this.value)">
+                ${comptes
+                  .map(
+                    (c) => `
+                  <option value="${c.num_compte}" ${Number(c.num_compte) === Number(compteId) ? 'selected' : ''}>
+                    Compte N°${c.num_compte} — ${escapeHtml(c.titulaire)} (${escapeHtml(c.type_compte)}) — Solde: ${formatMontant(c.solde)}
+                  </option>
+                `
+                  )
+                  .join('')}
+              </select>
+            </div>
+            <button type="button" class="btn btn-secondary" onclick="exportCsvReleve(${Number(compteId)})">Exporter CSV</button>
+          </div>
+
+          ${
+            rows.length === 0
+              ? '<div style="color:var(--text-muted);padding:14px 0;">Aucune écriture comptable sur ce compte.</div>'
+              : `
+            <div class="table-wrap">
+              <table class="bank-table">
+                <thead>
+                  <tr>
+                    <th>N° Mvt</th>
+                    <th>Date Valeur</th>
+                    <th>Date/Heure</th>
+                    <th>Référence</th>
+                    <th>Libellé Opération</th>
+                    <th>Canal</th>
+                    <th class="num">Débit (MAD)</th>
+                    <th class="num">Crédit (MAD)</th>
+                    <th class="num">Solde Progressif</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${rows
+                    .map((m) => {
+                      const isNeg = Number(m.solde_cumule) < 0;
+                      return `
+                        <tr class="${isNeg ? 'row-neg-balance' : ''}">
+                          <td class="mono">${escapeHtml(m.id_mouvement)}</td>
+                          <td class="mono">${formatDate(m.date_valeur)}</td>
+                          <td class="mono">${formatDateTime(m.date_heure)}</td>
+                          <td class="mono">${escapeHtml(m.ref_transaction)}</td>
+                          <td>${escapeHtml(m.libelle_operation)}</td>
+                          <td>${escapeHtml(m.canal)}</td>
+                          <td class="amount-debit">${m.debit != null ? formatNumberPlain(m.debit) : '—'}</td>
+                          <td class="amount-credit">${m.credit != null ? formatNumberPlain(m.credit) : '—'}</td>
+                          <td class="amount-neutral" style="font-weight:600;">${formatMontant(m.solde_cumule)}</td>
+                        </tr>
+                      `;
+                    })
+                    .join('')}
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="6" style="text-align:right;" class="label-upper">Totaux Grand Livre</td>
+                    <td class="num amount-debit">${formatMontant(totalDebits)}</td>
+                    <td class="num amount-credit">${formatMontant(totalCredits)}</td>
+                    <td class="num mono">${formatMontant(finalBalance)}</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>`
+          }
+        `;
+      }
+
+      async function onGrandLivreCompteChange(id) {
+        AppState.currentCompteId = Number(id);
+        await renderAdminGrandLivre(Number(id));
+      }
+
+      async function renderAdminSuspens() {
+        const body = document.getElementById('admin-tx-body');
+        let anomalies = [];
+        try {
+          const res = await apiFetch('/api/audit/anomalies');
+          anomalies = Array.isArray(res.data) ? res.data : [];
+          AppState.adminAnomalies = anomalies;
+        } catch {
+          anomalies = [];
+        }
+
+        const pending = anomalies.filter(
+          (a) =>
+            String(a.statut_trans).toUpperCase() === 'EN_ATTENTE' &&
+            !AppState.resolvedSuspensRefs.has(a.ref_transaction)
+        );
+
+        body.innerHTML = `
+          <div id="suspens-feedback"></div>
+          ${
+            pending.length === 0
+              ? '<div style="padding:14px 0;color:var(--text-muted);">Aucune opération en suspens (EN_ATTENTE) à traiter.</div>'
+              : `
+            <div class="table-wrap">
+              <table class="bank-table">
+                <thead>
+                  <tr>
+                    <th>Référence</th>
+                    <th>Date/Heure</th>
+                    <th>Type</th>
+                    <th>Canal</th>
+                    <th>IP Source</th>
+                    <th class="num">Montant (MAD)</th>
+                    <th class="num">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${pending
+                    .map(
+                      (a) => `
+                    <tr id="susp-row-${escapeHtml(a.ref_transaction)}">
+                      <td class="mono">${escapeHtml(a.ref_transaction)}</td>
+                      <td class="mono">${formatDateTime(a.date_heure)}</td>
+                      <td>${escapeHtml(a.type_transaction)}</td>
+                      <td>${escapeHtml(a.canal)}</td>
+                      <td class="mono">${escapeHtml(a.ip_source)}</td>
+                      <td class="amount-neutral" style="font-weight:600;">${formatMontant(a.montant_operation)}</td>
+                      <td class="num" style="white-space:nowrap;">
+                        <button type="button" class="btn btn-primary btn-sm" onclick="handleSuspensAction('${escapeHtml(
+                          a.ref_transaction
+                        )}', 'approve', '${escapeHtml(a.montant_operation)}')">Approuver</button>
+                        <button type="button" class="btn btn-destructive btn-sm" onclick="handleSuspensAction('${escapeHtml(
+                          a.ref_transaction
+                        )}', 'reject', '${escapeHtml(a.montant_operation)}')">Rejeter</button>
+                        <button type="button" class="btn btn-neutral btn-sm" onclick="handleSuspensAction('${escapeHtml(
+                          a.ref_transaction
+                        )}', 'freeze', '${escapeHtml(a.montant_operation)}')">Geler le compte</button>
+                      </td>
+                    </tr>
+                  `
+                    )
+                    .join('')}
+                </tbody>
+              </table>
+            </div>`
+          }
+        `;
+      }
+
+      function handleSuspensAction(ref, action, montant) {
+        const labels = {
+          approve: { title: 'Approuver le suspens', label: 'Approuver', destructive: false, verb: 'approuvée' },
+          reject: { title: 'Rejeter et extourner le suspens', label: 'Rejeter', destructive: true, verb: 'rejetée' },
+          freeze: { title: 'Geler le compte associé', label: 'Geler le compte', destructive: true, verb: 'gelée pour enquête' },
+        }[action];
+
+        openConfirmModal({
+          title: labels.title,
+          description: `Confirmer cette décision sur la transaction ${ref}.`,
+          impact: `Montant concerné : ${formatMontant(montant)}. La ligne sera retirée de la file de suspens.`,
+          confirmLabel: labels.label,
+          destructive: labels.destructive,
+          onConfirm: () => {
+            AppState.resolvedSuspensRefs.add(ref);
+            renderAdminSuspens().then(() => {
+              const fb = document.getElementById('suspens-feedback');
+              if (fb) {
+                fb.innerHTML = `<div class="alert-banner alert-success">Transaction ${escapeHtml(ref)} ${labels.verb}.</div>`;
+              }
+            });
+          },
+        });
+      }
+
+      function renderAdminBatch() {
+        const body = document.getElementById('admin-tx-body');
+        body.innerHTML = `
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <div class="card" style="box-shadow:none;">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+                <div>
+                  <div style="font-weight:600;font-size:13px;">Lancer EOD (Fin de Journée)</div>
+                  <div style="font-size:12px;color:var(--text-muted);">Calcul des intérêts créditeurs/débiteurs, clôture des opérations en attente.</div>
+                </div>
+                <button type="button" class="btn btn-primary" onclick="runBatchJob('eod')">Lancer EOD</button>
+              </div>
+              <div id="batch-status-eod"></div>
+            </div>
+
+            <div class="card" style="box-shadow:none;">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+                <div>
+                  <div style="font-weight:600;font-size:13px;">Lancer EOM (Fin de Mois)</div>
+                  <div style="font-size:12px;color:var(--text-muted);">Décompte des frais de tenue de compte, génération des relevés mensuels.</div>
+                </div>
+                <button type="button" class="btn btn-primary" onclick="runBatchJob('eom')">Lancer EOM</button>
+              </div>
+              <div id="batch-status-eom"></div>
+            </div>
+
+            <div class="card" style="box-shadow:none;">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+                <div>
+                  <div style="font-weight:600;font-size:13px;">Exporter Grand Livre complet</div>
+                  <div style="font-size:12px;color:var(--text-muted);">Téléchargement CSV de l’ensemble des écritures récupérées depuis les relevés.</div>
+                </div>
+                <button type="button" class="btn btn-secondary" onclick="runBatchJob('export')">Exporter Grand Livre complet</button>
+              </div>
+              <div id="batch-status-export"></div>
+            </div>
+          </div>
+        `;
+      }
+
+      async function runBatchJob(jobKey) {
+        const slot = document.getElementById(`batch-status-${jobKey}`);
+        if (!slot) return;
+        slot.innerHTML = `
+          <div style="margin-top:10px;">
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-secondary);">
+              <span>Traitement batch en cours...</span>
+              <span id="batch-pct-${jobKey}" class="mono">0%</span>
+            </div>
+            <div class="progress-track">
+              <div id="batch-fill-${jobKey}" class="progress-fill"></div>
+            </div>
+          </div>
+        `;
+
+        let allRows = [];
+        if (jobKey === 'export') {
+          const comptes = AppState.allComptes || [];
+          const results = await Promise.allSettled(comptes.map((c) => apiFetch(`/api/comptes/${c.num_compte}/releve`)));
+          results.forEach((r) => {
+            if (r.status === 'fulfilled' && Array.isArray(r.value.data)) {
+              allRows = allRows.concat(r.value.data);
+            }
+          });
+        }
+
+        let pct = 0;
+        const interval = setInterval(() => {
+          pct += 10;
+          const pctEl = document.getElementById(`batch-pct-${jobKey}`);
+          const fillEl = document.getElementById(`batch-fill-${jobKey}`);
+          if (pctEl) pctEl.textContent = `${pct}%`;
+          if (fillEl) fillEl.style.width = `${pct}%`;
+          if (pct >= 100) {
+            clearInterval(interval);
+            if (jobKey === 'export') {
+              exportCsvReleve('GLOBAL', allRows.length ? allRows : AppState.currentReleve);
+            }
+            slot.innerHTML = `
+              <div style="margin-top:10px;display:flex;align-items:center;gap:8px;">
+                ${statusBadge('VALIDÉE')}
+                <span style="font-size:12px;color:var(--success-text);">
+                  Traitement terminé à ${new Date().toLocaleTimeString('fr-FR')}${
+              jobKey === 'export' ? ` (${allRows.length} écritures exportées)` : ''
+            }.
+                </span>
+              </div>
+            `;
+          }
+        }, 200);
+      }
+
+      /* 4.4 Fraude & Risques (SIDPEF Console) */
+      async function renderAdminFraude() {
+        renderSkeleton('default');
+        await fetchAndRenderFraude(true);
+
+        stopFraudPolling();
+        AppState.fraudPollTimer = setInterval(async () => {
+          if (AppState.activeSection !== 'admin-fraude') {
+            stopFraudPolling();
+            return;
+          }
+          try {
+            const { data } = await apiFetch('/api/audit/anomalies');
+            const incoming = Array.isArray(data) ? data : [];
+            const prevCount = AppState.adminAnomalies.length;
+            if (incoming.length > prevCount) {
+              AppState.adminAnomaliesNewCount = incoming.length - prevCount;
+              const banner = document.getElementById('fraud-new-entries-banner');
+              if (banner) {
+                banner.style.display = 'flex';
+                banner.querySelector('span').textContent = `${AppState.adminAnomaliesNewCount} nouvelle(s) entrée(s) détectée(s) sur l'API.`;
+              }
+            }
+          } catch {
+            // Polling stays silent if transient error
+          }
+        }, 30000);
+      }
+
+      async function fetchAndRenderFraude(initial = false) {
+        let anomalies = [];
+        try {
+          const { data } = await apiFetch('/api/audit/anomalies');
+          anomalies = Array.isArray(data) ? data : [];
+          AppState.adminAnomalies = anomalies;
+          AppState.adminAnomaliesNewCount = 0;
+        } catch {
+          if (!initial) return;
+          anomalies = [];
+        }
+
+        const selected = AppState.adminFraudSelected;
+
+        document.getElementById('main-content').innerHTML = `
+          <!-- New entries poll indicator -->
+          <div id="fraud-new-entries-banner" class="alert-banner alert-warning" style="display:none;">
+            <span></span>
+            <button type="button" class="btn btn-primary btn-sm" onclick="fetchAndRenderFraude(false)">Actualiser la file</button>
+          </div>
+
+          <div class="${selected ? 'grid-2-60-40' : ''}" style="margin-bottom:14px;">
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">File des Anomalies & Transactions à Risque (${anomalies.length})</h2>
+                <button type="button" class="btn btn-neutral btn-sm" onclick="fetchAndRenderFraude(false)">Actualiser</button>
+              </div>
+              <div id="fraud-action-feedback"></div>
+              ${
+                anomalies.length === 0
+                  ? '<div style="padding:14px 0;color:var(--text-muted);">Aucune anomalie détectée dans la table d’audit.</div>'
+                  : `
+                <div class="table-wrap">
+                  <table class="bank-table">
+                    <thead>
+                      <tr>
+                        <th>Réf. Transaction</th>
+                        <th>Date/Heure</th>
+                        <th>Statut</th>
+                        <th>Type</th>
+                        <th>Canal</th>
+                        <th>IP Source</th>
+                        <th class="num">Montant (MAD)</th>
+                        <th class="num">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${anomalies
+                        .map((a, idx) => {
+                          const isLocal = String(a.ip_source || '').trim() === '127.0.0.1';
+                          return `
+                            <tr>
+                              <td class="mono">${escapeHtml(a.ref_transaction)}</td>
+                              <td class="mono" style="white-space:nowrap;">${formatDateTime(a.date_heure)}</td>
+                              <td>${statusBadge(a.statut_trans)}</td>
+                              <td>${escapeHtml(a.type_transaction)}</td>
+                              <td>${escapeHtml(a.canal)}</td>
+                              <td class="mono" style="white-space:nowrap;">
+                                ${escapeHtml(a.ip_source)}
+                                ${isLocal ? statusBadge('LOCAL') : ''}
+                              </td>
+                              <td class="amount-neutral" style="font-weight:600;">${formatMontant(a.montant_operation)}</td>
+                              <td class="num" style="white-space:nowrap;">
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="openFraudDrawer(${idx})">Détail</button>
+                                <button type="button" class="btn btn-primary btn-sm" onclick="confirmFraudRowAction(${idx}, 'approve')">Approuver</button>
+                                <button type="button" class="btn btn-destructive btn-sm" onclick="confirmFraudRowAction(${idx}, 'freeze')">Geler</button>
+                              </td>
+                            </tr>
+                          `;
+                        })
+                        .join('')}
+                    </tbody>
+                  </table>
+                </div>`
+              }
+            </div>
+
+            ${
+              selected
+                ? `
+              <div class="drawer-panel">
+                <div class="card-header">
+                  <h3 class="card-title">Inspection Anomalie</h3>
+                  <button type="button" class="btn btn-neutral btn-sm" onclick="closeFraudDrawer()">Fermer</button>
+                </div>
+                <div class="alert-banner alert-danger" style="display:block;margin-bottom:12px;">
+                  <div style="font-weight:700;">Niveau de Risque: ÉLEVÉ — Score: 87/100</div>
+                  <div style="font-size:12px;margin-top:3px;">Montant 20x supérieur au comportement historique du canal ${escapeHtml(
+                    selected.canal
+                  )}</div>
+                </div>
+                <dl class="kyc-dl" style="margin-bottom:14px;">
+                  <dt>Référence</dt>
+                  <dd class="mono">${escapeHtml(selected.ref_transaction)}</dd>
+                  <dt>Date / Heure</dt>
+                  <dd class="mono">${formatDateTime(selected.date_heure)}</dd>
+                  <dt>Statut</dt>
+                  <dd>${statusBadge(selected.statut_trans)}</dd>
+                  <dt>Type</dt>
+                  <dd>${escapeHtml(selected.type_transaction)}</dd>
+                  <dt>Canal</dt>
+                  <dd>${escapeHtml(selected.canal)}</dd>
+                  <dt>IP Source</dt>
+                  <dd class="mono">${escapeHtml(selected.ip_source)}</dd>
+                  <dt>Montant</dt>
+                  <dd class="mono"><strong>${formatMontant(selected.montant_operation)}</strong></dd>
+                </dl>
+                <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                  <button type="button" class="btn btn-destructive" onclick="resolveFraudDrawer('sar')">
+                    Marquer comme Fraude & Générer SAR
+                  </button>
+                  <button type="button" class="btn btn-neutral" onclick="resolveFraudDrawer('fp')">
+                    Clore — Faux positif
+                  </button>
+                </div>
+              </div>`
+                : ''
+            }
+          </div>
+
+          <!-- Banc d'Épreuve du Trigger -->
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Banc d'Épreuve du Trigger — Épreuve d'Immuabilité Comptable</h2>
+              <span class="badge badge-info">MySQL Engine Proof</span>
+            </div>
+            <p style="margin:0 0 12px 0;color:var(--text-secondary);">
+              Ce module prouve en temps réel que le trigger MySQL <strong class="mono">trg_mouvement_before_update</strong>
+              (SQLSTATE 45000, code 1644) rend la piste d'audit inaltérable. Toute tentative de modification d'une écriture est
+              bloquée au niveau moteur, indépendamment de l'application.
+            </p>
+            <form onsubmit="submitTriggerTest(event)" style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:12px;">
+              <div class="form-group" style="margin-bottom:0;width:160px;">
+                <label class="form-label" for="trg-id-mvt">ID Mouvement</label>
+                <input type="number" id="trg-id-mvt" class="form-control mono" value="1" min="1" required />
+              </div>
+              <div class="form-group" style="margin-bottom:0;width:220px;">
+                <label class="form-label" for="trg-new-amt">Nouveau Montant illégal (MAD)</label>
+                <input type="number" step="0.01" id="trg-new-amt" class="form-control mono" value="9999.00" required />
+              </div>
+              <button type="submit" id="trg-submit-btn" class="btn btn-destructive">Tenter la modification illégale →</button>
+            </form>
+            <div id="trigger-result-slot"></div>
+          </div>
+        `;
+      }
+
+      function openFraudDrawer(idx) {
+        AppState.adminFraudSelected = AppState.adminAnomalies[idx] || null;
+        fetchAndRenderFraude(false);
+      }
+
+      function closeFraudDrawer() {
+        AppState.adminFraudSelected = null;
+        fetchAndRenderFraude(false);
+      }
+
+      function resolveFraudDrawer(kind) {
+        const ref = AppState.adminFraudSelected?.ref_transaction || '';
+        const msg =
+          kind === 'sar'
+            ? `Déclaration de soupçon (SAR) générée pour ${ref} et transmise à l'UTRF.`
+            : `Alerte ${ref} clôturée en faux positif.`;
+        AppState.adminFraudSelected = null;
+        fetchAndRenderFraude(false).then(() => {
+          const fb = document.getElementById('fraud-action-feedback');
+          if (fb) fb.innerHTML = `<div class="alert-banner alert-success">${escapeHtml(msg)}</div>`;
+        });
+      }
+
+      function confirmFraudRowAction(idx, action) {
+        const row = AppState.adminAnomalies[idx];
+        if (!row) return;
+        const isFreeze = action === 'freeze';
+        openConfirmModal({
+          title: isFreeze ? 'Geler le compte lié à l’anomalie' : 'Approuver manuellement l’opération',
+          description: `Transaction ${row.ref_transaction} (${formatMontant(row.montant_operation)}).`,
+          impact: isFreeze
+            ? 'Le compte émetteur sera gelé immédiatement pour investigation fraude.'
+            : 'L’alerte sera levée et l’opération autorisée par l’opérateur.',
+          confirmLabel: isFreeze ? 'Geler le compte' : 'Approuver',
+          destructive: isFreeze,
+          onConfirm: () => {
+            const fb = document.getElementById('fraud-action-feedback');
+            if (fb) {
+              fb.innerHTML = `<div class="alert-banner ${isFreeze ? 'alert-warning' : 'alert-success'}">
+                Décision appliquée sur ${escapeHtml(row.ref_transaction)} (${isFreeze ? 'Compte gelé' : 'Approuvée'}).
+              </div>`;
+            }
+          },
+        });
+      }
+
+      async function submitTriggerTest(e) {
+        e.preventDefault();
+        const idMvt = Number(document.getElementById('trg-id-mvt').value);
+        const nouveauMontant = Number(document.getElementById('trg-new-amt').value);
+        const btn = document.getElementById('trg-submit-btn');
+        const slot = document.getElementById('trigger-result-slot');
+
+        btn.disabled = true;
+        btn.textContent = 'Exécution du test SQL...';
+
+        try {
+          const { data } = await apiFetch('/api/audit/test-trigger', {
+            method: 'POST',
+            body: JSON.stringify({
+              id_mouvement: idMvt,
+              nouveau_montant: nouveauMontant,
+            }),
+          });
+
+          if (data?.status === 'TRIGGER_BLOCKED_SUCCESS') {
+            slot.innerHTML = `
+              <div class="alert-banner alert-success" style="display:block;margin-bottom:0;">
+                <div style="font-weight:700;font-size:13px;margin-bottom:6px;">✓ TRIGGER ACTIF — MODIFICATION BLOQUÉE</div>
+                <div style="display:flex;flex-wrap:wrap;gap:14px;font-size:12px;margin-bottom:6px;" class="mono">
+                  <span><strong>SQLSTATE:</strong> ${escapeHtml(data.code_sqlstate)}</span>
+                  <span><strong>Code MySQL:</strong> ${escapeHtml(data.code_erreur_mysql)}</span>
+                  <span><strong>Trigger:</strong> ${escapeHtml(data.trigger_name)}</span>
+                </div>
+                <pre class="json-block">${escapeHtml(JSON.stringify(data, null, 2))}</pre>
+              </div>
+            `;
+          } else {
+            slot.innerHTML = `
+              <div class="alert-banner alert-danger" style="display:block;margin-bottom:0;">
+                <div style="font-weight:700;margin-bottom:4px;">Réponse inattendue du banc d'épreuve</div>
+                <pre class="json-block">${escapeHtml(JSON.stringify(data, null, 2))}</pre>
+              </div>
+            `;
+          }
+        } catch (err) {
+          slot.innerHTML = `
+            <div class="alert-banner alert-danger" style="display:block;margin-bottom:0;">
+              <strong>Échec de l’appel au banc d’épreuve :</strong> ${escapeHtml(err.message)}
+            </div>
+          `;
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Tenter la modification illégale →';
+        }
+      }
+
+      /* 4.5 Audit & Sécurité */
+      async function renderAdminAudit(logFilter = '') {
+        const filteredLogs = (AppState.auditLogs || []).filter((line) =>
+          line.toLowerCase().includes(logFilter.toLowerCase())
+        );
+
+        document.getElementById('main-content').innerHTML = `
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <!-- Piste d'Audit -->
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">Piste d'Audit Système (Journal Inaltérable)</h2>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <input
+                    type="text"
+                    id="audit-log-search"
+                    class="form-control"
+                    style="width:240px;padding:5px 8px;font-size:12px;"
+                    placeholder="Filtrer les logs..."
+                    value="${escapeHtml(logFilter)}"
+                    oninput="filterAuditLogs(this.value)"
+                  />
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="exportAuditLogFile()">Exporter .log</button>
+                </div>
+              </div>
+              <div id="audit-log-viewer" class="log-viewer">
+                ${
+                  filteredLogs.length === 0
+                    ? '<div class="log-line" style="color:var(--text-muted);">Aucune ligne correspondante.</div>'
+                    : filteredLogs.map((l) => `<div class="log-line">${escapeHtml(l)}</div>`).join('')
+                }
+              </div>
+            </div>
+
+            <!-- Gestion des Accès (RBAC) -->
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">Gestion des Accès (RBAC)</h2>
+              </div>
+              <div id="rbac-feedback"></div>
+              <div class="table-wrap">
+                <table class="bank-table">
+                  <thead>
+                    <tr>
+                      <th>Rôle</th>
+                      <th>Membres</th>
+                      <th>Permissions</th>
+                      <th class="num">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${AppState.rbacRoles
+                      .map(
+                        (r) => `
+                      <tr>
+                        <td><strong>${escapeHtml(r.role)}</strong></td>
+                        <td>${escapeHtml(r.membres)}</td>
+                        <td>${escapeHtml(r.permissions)}</td>
+                        <td class="num">
+                          ${
+                            r.editable
+                              ? `<button type="button" class="btn btn-neutral btn-sm" onclick="editRbacRole('${r.id}')">Modifier</button>`
+                              : '<span style="color:var(--text-muted);">—</span>'
+                          }
+                        </td>
+                      </tr>
+                    `
+                      )
+                      .join('')}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- File Maker-Checker (Principe des 4 Yeux) -->
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">File Maker-Checker (Principe des 4 Yeux)</h2>
+                <span class="label-upper">${AppState.makerCheckerPending.length} en attente</span>
+              </div>
+              ${
+                AppState.makerCheckerPending.length === 0
+                  ? '<div style="padding:10px 0;color:var(--text-muted);">Toutes les demandes Maker-Checker ont été traitées.</div>'
+                  : `
+                <div class="table-wrap">
+                  <table class="bank-table">
+                    <thead>
+                      <tr>
+                        <th>Demande</th>
+                        <th>Initié par</th>
+                        <th>Date</th>
+                        <th>Statut</th>
+                        <th class="num">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${AppState.makerCheckerPending
+                        .map(
+                          (item) => `
+                        <tr>
+                          <td>${escapeHtml(item.demande)}</td>
+                          <td>${escapeHtml(item.initiateur)}</td>
+                          <td class="mono">${escapeHtml(item.date)}</td>
+                          <td>${statusBadge('EN_ATTENTE')}</td>
+                          <td class="num" style="white-space:nowrap;">
+                            <button type="button" class="btn btn-primary btn-sm" onclick="processMakerChecker('${item.id}', 'APPROUVÉE')">Approuver</button>
+                            <button type="button" class="btn btn-destructive btn-sm" onclick="processMakerChecker('${item.id}', 'REJETÉE')">Rejeter</button>
+                          </td>
+                        </tr>
+                      `
+                        )
+                        .join('')}
+                    </tbody>
+                  </table>
+                </div>`
+              }
+
+              ${
+                AppState.makerCheckerProcessed.length > 0
+                  ? `
+                <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border-row);">
+                  <div class="label-upper" style="margin-bottom:8px;">Traitées</div>
+                  <div class="table-wrap">
+                    <table class="bank-table">
+                      <thead>
+                        <tr>
+                          <th>Demande</th>
+                          <th>Initié par</th>
+                          <th>Décision</th>
+                          <th>Horodatage validation</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        ${AppState.makerCheckerProcessed
+                          .map(
+                            (p) => `
+                          <tr>
+                            <td>${escapeHtml(p.demande)}</td>
+                            <td>${escapeHtml(p.initiateur)}</td>
+                            <td>${statusBadge(p.decision)}</td>
+                            <td class="mono">${escapeHtml(p.decidedAt)}</td>
+                          </tr>
+                        `
+                          )
+                          .join('')}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>`
+                  : ''
+              }
+            </div>
+          </div>
+        `;
+      }
+
+      function filterAuditLogs(val) {
+        const viewer = document.getElementById('audit-log-viewer');
+        if (!viewer) return;
+        const filtered = (AppState.auditLogs || []).filter((line) =>
+          line.toLowerCase().includes(val.toLowerCase())
+        );
+        viewer.innerHTML =
+          filtered.length === 0
+            ? '<div class="log-line" style="color:var(--text-muted);">Aucune ligne correspondante.</div>'
+            : filtered.map((l) => `<div class="log-line">${escapeHtml(l)}</div>`).join('');
+      }
+
+      function exportAuditLogFile() {
+        const q = document.getElementById('audit-log-search')?.value || '';
+        const lines = (AppState.auditLogs || []).filter((l) => l.toLowerCase().includes(q.toLowerCase()));
+        const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `sidpef_audit_${new Date().toISOString().slice(0, 10)}.log`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+
+      function editRbacRole(roleId) {
+        const role = AppState.rbacRoles.find((r) => r.id === roleId);
+        if (!role) return;
+        openConfirmModal({
+          title: `Modifier les droits — ${role.role}`,
+          description: `Permissions actuelles : ${role.permissions}`,
+          impact: 'En validant, le profil passera en mode lecture + validation étendue pour les membres rattachés.',
+          confirmLabel: 'Basculer le niveau d’accès',
+          destructive: false,
+          onConfirm: () => {
+            role.permissions = role.permissions.includes('+ Audit')
+              ? role.permissions.replace(' + Audit', '')
+              : `${role.permissions} + Audit`;
+            renderAdminAudit().then(() => {
+              const fb = document.getElementById('rbac-feedback');
+              if (fb) fb.innerHTML = `<div class="alert-banner alert-success">Matrice RBAC mise à jour pour le rôle ${escapeHtml(role.role)}.</div>`;
+            });
+          },
+        });
+      }
+
+      function processMakerChecker(itemId, decision) {
+        const item = AppState.makerCheckerPending.find((x) => x.id === itemId);
+        if (!item) return;
+        const isReject = decision === 'REJETÉE';
+        openConfirmModal({
+          title: isReject ? 'Rejeter la demande (4 Yeux)' : 'Approuver la demande (4 Yeux)',
+          description: item.demande,
+          impact: `Initié par ${item.initiateur}. La décision sera horodatée et déplacée vers les demandes traitées.`,
+          confirmLabel: isReject ? 'Rejeter' : 'Approuver',
+          destructive: isReject,
+          onConfirm: () => {
+            AppState.makerCheckerPending = AppState.makerCheckerPending.filter((x) => x.id !== itemId);
+            const nowStr = new Date().toISOString().replace('T', ' ').slice(0, 19);
+            AppState.makerCheckerProcessed.unshift({
+              ...item,
+              decision,
+              decidedAt: nowStr,
+            });
+            renderAdminAudit();
+          },
+        });
+      }
+
+      
+      /* =========================================================================
+         AUTHENTIFICATION JWT & GESTION DE SESSION (SPRINT 7)
+         ========================================================================= */
+
+      function showLoginScreen(errorMessage = null) {
+        const overlay = document.getElementById('login-overlay');
+        const appShell = document.querySelector('.app-shell');
+        if (overlay) overlay.style.display = 'flex';
+        if (appShell) appShell.style.display = 'none';
+
+        const alertEl = document.getElementById('login-alert');
+        if (alertEl) {
+          if (errorMessage) {
+            alertEl.textContent = errorMessage;
+            alertEl.style.display = 'block';
+          } else {
+            alertEl.style.display = 'none';
+          }
+        }
+      }
+
+      function hideLoginScreen() {
+        const overlay = document.getElementById('login-overlay');
+        const appShell = document.querySelector('.app-shell');
+        if (overlay) overlay.style.display = 'none';
+        if (appShell) appShell.style.display = 'flex';
+      }
+
+      async function handleLoginSubmit(event) {
+        event.preventDefault();
+        const usernameInput = document.getElementById('login-username');
+        const passwordInput = document.getElementById('login-password');
+        const btn = document.getElementById('login-submit-btn');
+        const alertEl = document.getElementById('login-alert');
+
+        alertEl.style.display = 'none';
+        btn.disabled = true;
+        btn.textContent = 'Authentification en cours...';
+
+        try {
+          const res = await fetch(`${API_BASE}/api/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              username: usernameInput.value.trim(),
+              password: passwordInput.value,
+            }),
+          });
+
+          const data = await res.json();
+          if (!res.ok) {
+            throw new Error(data?.detail || 'Identifiants invalides');
+          }
+
+          // Stockage du jeton JWT dans sessionStorage
+          sessionStorage.setItem('sidpef_token', data.access_token);
+          AppState.currentUser = data.user;
+          AppState.currentCin = data.user.cin;
+
+          // Orientation vers le bon portail selon le role
+          if (String(data.user.role).toUpperCase() === 'ADMIN') {
+            AppState.mode = 'admin';
+            AppState.activeSection = 'admin-dashboard';
+          } else {
+            AppState.mode = 'client';
+            AppState.activeSection = 'dashboard';
+          }
+
+          hideLoginScreen();
+          updateSessionUI();
+          await initAuthenticatedApp();
+        } catch (err) {
+          alertEl.textContent = err.message || 'Identifiants bancaires incorrects.';
+          alertEl.style.display = 'block';
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Se connecter à l\'Intranet →';
+        }
+      }
+
+      function handleLogout() {
+        sessionStorage.removeItem('sidpef_token');
+        AppState.currentUser = null;
+        AppState.currentCin = null;
+        AppState.clientProfile = null;
+        AppState.currentReleve = [];
+        showLoginScreen();
+      }
+
+      function updateSessionUI() {
+        const user = AppState.currentUser;
+        if (!user) return;
+
+        const nameEl = document.getElementById('session-user-name');
+        const subEl = document.getElementById('session-user-sub');
+        const roleBadge = document.getElementById('session-role-badge');
+        const modeBtnAdmin = document.getElementById('mode-btn-admin');
+
+        if (nameEl) nameEl.textContent = `${user.prenom} ${user.nom}`;
+        if (subEl) subEl.textContent = `CIN: ${user.cin}`;
+        if (roleBadge) {
+          roleBadge.textContent = user.role;
+          roleBadge.className = user.role === 'ADMIN' ? 'badge badge-warning' : 'badge badge-success';
+        }
+
+        // Restreindre le mode admin si role CLIENT
+        if (modeBtnAdmin) {
+          if (user.role === 'CLIENT') {
+            modeBtnAdmin.style.opacity = '0.4';
+            modeBtnAdmin.style.cursor = 'not-allowed';
+            modeBtnAdmin.title = 'Accès réservé au Back-Office Administrateur';
+            modeBtnAdmin.onclick = (e) => {
+              e.preventDefault();
+              alert('Accès refusé : Votre profil CLIENT ne dispose pas des privilèges Back-Office.');
+            };
+          } else {
+            modeBtnAdmin.style.opacity = '1';
+            modeBtnAdmin.style.cursor = 'pointer';
+            modeBtnAdmin.title = 'Back-Office Admin';
+            modeBtnAdmin.onclick = () => switchMode('admin');
+          }
+        }
+
+        updateTopbar();
+      }
+
+
+      /* ---------- Application Initialization ---------- */
+      async function initApp() {
+        const token = sessionStorage.getItem('sidpef_token');
+        if (!token) {
+          showLoginScreen();
+          return;
+        }
+
+        try {
+          const { data: user } = await apiFetch('/api/auth/me');
+          AppState.currentUser = user;
+          AppState.currentCin = user.cin;
+          if (String(user.role).toUpperCase() === 'ADMIN' && AppState.mode !== 'client') {
+            AppState.mode = 'admin';
+            AppState.activeSection = 'admin-dashboard';
+          }
+          hideLoginScreen();
+          updateSessionUI();
+          await initAuthenticatedApp();
+        } catch {
+          sessionStorage.removeItem('sidpef_token');
+          showLoginScreen('Session expirée ou invalide. Veuillez vous reconnecter.');
+        }
+      }
+
+      async function initAuthenticatedApp() {
+        renderSidebarNav();
+        updateTopbar();
+        await checkApiHealth();
+        await loadBootstrapLists(true);
+        await renderCurrentSection();
+      }
+
+      document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+  </body>
+</html>
