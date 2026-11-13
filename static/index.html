@@ -1330,7 +1330,7 @@
         </div>
 
         <!-- Mode Switcher -->
-        <div class="mode-switcher">
+        <div class="mode-switcher" style="display: none;">
           <button
             type="button"
             id="mode-btn-client"
@@ -4823,33 +4823,30 @@
         const nameEl = document.getElementById('session-user-name');
         const subEl = document.getElementById('session-user-sub');
         const roleBadge = document.getElementById('session-role-badge');
-        const modeBtnAdmin = document.getElementById('mode-btn-admin');
+        const modeSwitcher = document.querySelector('.mode-switcher');
 
         if (nameEl) nameEl.textContent = `${user.prenom} ${user.nom}`;
         if (subEl) subEl.textContent = `CIN: ${user.cin}`;
         if (roleBadge) {
           roleBadge.textContent = user.role;
-          roleBadge.className = user.role === 'ADMIN' ? 'badge badge-warning' : 'badge badge-success';
+          roleBadge.className = String(user.role).toUpperCase() === 'ADMIN' ? 'badge badge-warning' : 'badge badge-success';
         }
 
-        // Restreindre le mode admin si role CLIENT
-        if (modeBtnAdmin) {
-          if (user.role === 'CLIENT') {
-            modeBtnAdmin.style.opacity = '0.4';
-            modeBtnAdmin.style.cursor = 'not-allowed';
-            modeBtnAdmin.title = 'Accès réservé au Back-Office Administrateur';
-            modeBtnAdmin.onclick = (e) => {
-              e.preventDefault();
-              alert('Accès refusé : Votre profil CLIENT ne dispose pas des privilèges Back-Office.');
-            };
-          } else {
-            modeBtnAdmin.style.opacity = '1';
-            modeBtnAdmin.style.cursor = 'pointer';
-            modeBtnAdmin.title = 'Back-Office Admin';
-            modeBtnAdmin.onclick = () => switchMode('admin');
-          }
+        // Masquer complètement le rectangle de bascule pour les deux rôles (aucun rectangle visible)
+        if (modeSwitcher) {
+          modeSwitcher.style.display = 'none';
         }
 
+        const sidebar = document.getElementById('sidebar');
+        if (String(user.role).toUpperCase() === 'ADMIN') {
+          AppState.mode = 'admin';
+          if (sidebar) sidebar.classList.add('admin-mode');
+        } else {
+          AppState.mode = 'client';
+          if (sidebar) sidebar.classList.remove('admin-mode');
+        }
+
+        renderSidebarNav();
         updateTopbar();
       }
 
