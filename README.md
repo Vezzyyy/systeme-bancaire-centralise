@@ -37,23 +37,28 @@ Ce dépôt contient l'analyse, la conception conceptuelle, la modélisation logi
 
 ## 🗂️ Documents & Scripts du Projet
 
-- **Guide Conceptuel** : [`Comprendre_le_MCD_banque.pdf`](./Comprendre_le_MCD_banque.pdf) — Guide pédagogique pas-à-pas expliquant chaque bloc du modèle et les règles de gestion associées.
-- **Modèle Conceptuel de Données (MCD)** : [`MCD.svg`](./MCD.svg) — Schéma vectoriel Merise généré via Mocodo.
-- **Modèle Logique de Données (MLD)** : [`MLD.png`](./MLD.png) — Schéma relationnel complet conçu avec dbdiagram.io.
-- **DDL & Schéma MySQL** : [`01_schema_sidpef.sql`](./01_schema_sidpef.sql) — Création des 13 tables, clés primaires/étrangères (`ON DELETE RESTRICT`), contraintes `CHECK` et index.
-- **Logique Métier & Triggers** : [`02_triggers_metier.sql`](./02_triggers_metier.sql) — Procédure stockée `SP_VALIDER_TRANSACTION` (partie double, mise à jour atomique des soldes) et triggers d'immuabilité sur `MOUVEMENT`.
-- **Données de Test & Simulation** : [`03_donnees_test.sql`](./03_donnees_test.sql) — Jeu de données complet (3 agences, 5 clients, 5 comptes, 1 GAB/ATM, 1 bénéficiaire externe, cartes) et test de virement.
-- **Requêtes Analytiques (Exigence 8)** : [`04_requetes_analytiques.sql`](./04_requetes_analytiques.sql) — 5 requêtes métier complexes (fenêtrage `SUM() OVER`, jointures 360°, agrégations, sous-requêtes).
-- **Analyse de Performance & EXPLAIN (Exigence 9)** : [`04b_explain_performance.sql`](./04b_explain_performance.sql) — Démonstrations et benchmarks `EXPLAIN` avant/après indexation avec profilage SQL.
-- **Intégration Python & ORM (Exigence 10)** :
+- **Guide Conceptuel** : [`Comprendre_le_MCD_banque.pdf`](./docs/Comprendre_le_MCD_banque.pdf) — Guide pédagogique pas-à-pas expliquant chaque bloc du modèle et les règles de gestion associées.
+- **Modèle Conceptuel de Données (MCD)** : [`MCD.svg`](./docs/MCD.svg) — Schéma vectoriel Merise généré via Mocodo.
+- **Modèle Logique de Données (MLD)** : [`MLD.png`](./docs/MLD.png) — Schéma relationnel complet conçu avec dbdiagram.io.
+- **Scripts SQL (Dossier `sql/`)** :
+  - [`01_schema_sidpef.sql`](./sql/01_schema_sidpef.sql) — Création des 13 tables, clés primaires/étrangères (`ON DELETE RESTRICT`), contraintes `CHECK` et index.
+  - [`02_triggers_metier.sql`](./sql/02_triggers_metier.sql) — Procédure stockée `SP_VALIDER_TRANSACTION` (partie double, mise à jour atomique des soldes) et triggers d'immuabilité sur `MOUVEMENT`.
+  - [`03_donnees_test.sql`](./sql/03_donnees_test.sql) — Jeu de données complet (3 agences, 5 clients, 5 comptes, 1 GAB/ATM, 1 bénéficiaire externe, cartes) et test de virement.
+  - [`04_requetes_analytiques.sql`](./sql/04_requetes_analytiques.sql) — 5 requêtes métier complexes (fenêtrage `SUM() OVER`, jointures 360°, agrégations, sous-requêtes).
+  - [`04b_explain_performance.sql`](./sql/04b_explain_performance.sql) — Démonstrations et benchmarks `EXPLAIN` avant/après indexation avec profilage SQL.
+  - [`05_patch_auth.sql`](./sql/05_patch_auth.sql) — Migration DDL/DML d'authentification bcrypt et rôles RBAC.
+- **Intégration Python & ORM** :
   - [`config.py`](./config.py) & [`.env.example`](./.env.example) : Isolation des identifiants et configuration paramétrée.
   - [`database.py`](./database.py) : Gestionnaire de pool de connexions MySQL (`mysql.connector.pooling`) et context managers.
   - [`models.py`](./models.py) : Modèles de données typés (`dataclasses`) et hiérarchie d'exceptions bancaires.
   - [`banking_dao.py`](./banking_dao.py) : Couche d'accès aux données (ORM/DAO), exécution atomique de virements via `SP_VALIDER_TRANSACTION` et extraction analytique.
-  - [`test_e2e_banking.py`](./test_e2e_banking.py) : Suite de tests automatisés de bout en bout (7 tests réussis à 100%).
-- **API FastAPI & Services REST (Sprint 6)** :
-  - [`api.py`](./api.py) : API RESTful FastAPI exposant les endpoints de consultation, virement et audit.
-  - [`test_api.py`](./test_api.py) : Suite de tests automatisés validant les routes et la gestion des codes d'erreur HTTP.
+- **API FastAPI & Services REST** :
+  - [`api.py`](./api.py) : API RESTful FastAPI sécurisée par JWT, RBAC et intégrité MySQL 8+.
+- **Suites de Tests Automatisés (Dossier `tests/`)** :
+  - [`test_backend_complet.py`](./tests/test_backend_complet.py) : Suite pytest impitoyable (13 tests) : Auth JWT, ACID/Rollback, Triggers 1644 et équilibre à somme nulle.
+  - [`test_frontend.spec.js`](./tests/test_frontend.spec.js) : Suite de tests JSDOM (5 tests) : Persistance JWT, bannières DOM sans rechargement, relevé dynamique.
+  - [`test_api.py`](./tests/test_api.py) : Suite de régression API complète (18 tests).
+  - [`test_e2e_banking.py`](./tests/test_e2e_banking.py) : Suite de validation end-to-end Python/DAO (7 scénarios réels).
 
 ---
 
@@ -66,10 +71,10 @@ Ce dépôt contient l'analyse, la conception conceptuelle, la modélisation logi
   - Traduction Merise vers le modèle relationnel.
   - Spécification des types SQL, contraintes d'intégrité référentielle (PK / FK) et héritage par table par classe.
 - [x] **Sprint 3 : Implémentation Physique & Logique Métier (MySQL 8+)**
-  - Script DDL complet (`01_schema_sidpef.sql`) avec clauses `ON DELETE RESTRICT` et index de performance.
+  - Script DDL complet (`sql/01_schema_sidpef.sql`) avec clauses `ON DELETE RESTRICT` et index de performance.
   - Procédure stockée `SP_VALIDER_TRANSACTION` avec vérification de la partie double ($\sum D = \sum C$) et mise à jour atomique.
   - Triggers d'immuabilité comptable (`BEFORE UPDATE` / `BEFORE DELETE` sur `MOUVEMENT`).
-  - Jeu d'essai réaliste et validation transactionnelle d'un virement de 2 500 MAD (`03_donnees_test.sql`).
+  - Jeu d'essai réaliste et validation transactionnelle d'un virement de 2 500 MAD (`sql/03_donnees_test.sql`).
 - [x] **Sprint 4 : Requêtage Avancé & Analyse de Performance EXPLAIN (Exigences 8 & 9)**
   - Sélection & filtrage des opérations en anomalie (en attente / rejetées).
   - Vue 360° du client consolidant comptes, cartes et historique de mouvements.
@@ -81,11 +86,17 @@ Ce dépôt contient l'analyse, la conception conceptuelle, la modélisation logi
   - Module d'accès aux données (`BankingDAO`) et pool de connexions sécurisé (`DatabaseManager`).
   - Exécution transactionnelle de virements appelant la procédure stockée `SP_VALIDER_TRANSACTION`.
   - Gestion stricte de l'atomicité (`COMMIT`, `ROLLBACK` automatique et levée d'exceptions typées).
-  - Validation complète de bout en bout (`python test_e2e_banking.py`) couvrant 7 scénarios réels.
+  - Validation complète de bout en bout (`python tests/test_e2e_banking.py`) couvrant 7 scénarios réels.
 - [x] **Sprint 6 : API RESTful FastAPI & Services Métier (Headless Backend)**
   - Architecture RESTful haute performance (`api.py`) avec validation des schémas Pydantic V2.
   - Endpoints opérationnels : consultation 360°, virement atomique avec appel de `SP_VALIDER_TRANSACTION`, et console d'audit des rejets/triggers.
-  - Suite de tests d'intégration API (`test_api.py`) validant 100% des cas nominaux et d'erreur.
+- [x] **Sprint 7 : Système d'Authentification JWT, RBAC & Login Bancaire**
+  - Hachage bcrypt, jetons signés `HS256`, verrouillage cross-client `403 Forbidden`.
+  - Intranet bancaire corporate avec typographie *Plus Jakarta Sans*, Nombre d'Or et cloisonnement étanche.
+- [x] **Sprint 8 : Validation Qualité Impitoyable & Tests Automatisés E2E**
+  - Suite pytest `tests/test_backend_complet.py` (13 tests) : ACID, Rollback, Triggers 1644, Équilibre net 0.00.
+  - Suite frontend JSDOM `tests/test_frontend.spec.js` (5 tests) : Sessions JWT, bannières DOM et rendu chronologique.
+  - Réorganisation professionnelle de l'arborescence (`sql/`, `docs/`, `tests/`).
 
 ---
 
@@ -97,4 +108,10 @@ python -m uvicorn api:app --reload
 
 # 2. Consulter la documentation Swagger interactive :
 # -> http://127.0.0.1:8000/api/docs
+
+# 3. Exécuter l'ensemble des tests automatisés :
+npm test
+python -m pytest tests/test_backend_complet.py -v
+python tests/test_api.py
+python tests/test_e2e_banking.py
 ```
