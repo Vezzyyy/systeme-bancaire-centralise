@@ -247,6 +247,8 @@ CREATE INDEX `idx_transaction_type` ON `transaction` (`code_type_trans`);
 CREATE INDEX `idx_transaction_canal` ON `transaction` (`code_canal`);
 CREATE INDEX `idx_transaction_carte` ON `transaction` (`num_carte`);
 CREATE INDEX `idx_transaction_annulee` ON `transaction` (`ref_transaction_annulee`);
+CREATE INDEX `idx_transaction_date_heure` ON `transaction` (`date_heure`);
+CREATE INDEX `idx_client_email` ON `client` (`email`);
 CREATE INDEX `idx_mouvement_transaction` ON `mouvement` (`ref_transaction`);
 CREATE INDEX `idx_mouvement_id_contrepartie` ON `mouvement` (`id_contrepartie`);
 CREATE INDEX `idx_mouvement_date_valeur` ON `mouvement` (`date_valeur`);
