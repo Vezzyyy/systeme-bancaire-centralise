@@ -51,6 +51,9 @@ Ce dépôt contient l'analyse, la conception conceptuelle, la modélisation logi
   - [`models.py`](./models.py) : Modèles de données typés (`dataclasses`) et hiérarchie d'exceptions bancaires.
   - [`banking_dao.py`](./banking_dao.py) : Couche d'accès aux données (ORM/DAO), exécution atomique de virements via `SP_VALIDER_TRANSACTION` et extraction analytique.
   - [`test_e2e_banking.py`](./test_e2e_banking.py) : Suite de tests automatisés de bout en bout (7 tests réussis à 100%).
+- **API FastAPI & Services REST (Sprint 6)** :
+  - [`api.py`](./api.py) : API RESTful FastAPI exposant les endpoints de consultation, virement et audit.
+  - [`test_api.py`](./test_api.py) : Suite de tests automatisés validant les routes et la gestion des codes d'erreur HTTP.
 
 ---
 
@@ -79,3 +82,19 @@ Ce dépôt contient l'analyse, la conception conceptuelle, la modélisation logi
   - Exécution transactionnelle de virements appelant la procédure stockée `SP_VALIDER_TRANSACTION`.
   - Gestion stricte de l'atomicité (`COMMIT`, `ROLLBACK` automatique et levée d'exceptions typées).
   - Validation complète de bout en bout (`python test_e2e_banking.py`) couvrant 7 scénarios réels.
+- [x] **Sprint 6 : API RESTful FastAPI & Services Métier (Headless Backend)**
+  - Architecture RESTful haute performance (`api.py`) avec validation des schémas Pydantic V2.
+  - Endpoints opérationnels : consultation 360°, virement atomique avec appel de `SP_VALIDER_TRANSACTION`, et console d'audit des rejets/triggers.
+  - Suite de tests d'intégration API (`test_api.py`) validant 100% des cas nominaux et d'erreur.
+
+---
+
+## 💻 Démarrage de l'API Backend SIDPEF
+
+```bash
+# 1. Démarrer le serveur API
+python -m uvicorn api:app --reload
+
+# 2. Consulter la documentation Swagger interactive :
+# -> http://127.0.0.1:8000/api/docs
+```
