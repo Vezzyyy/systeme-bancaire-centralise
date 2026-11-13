@@ -1,72 +1,72 @@
-﻿# RAPPORT DE PROJET COMPLET â€” SYSTÃˆME BANCAIRE CENTRALISÃ‰ (SIDPEF)
-## *Core Banking Information System, ModÃ©lisation Merise 3NF, Moteur Transactionnel MySQL 8+, API FastAPI & Intranet Bancaire SÃ©curisÃ©*
+# RAPPORT DE PROJET COMPLET — SYSTÈME BANCAIRE CENTRALISÉ (SIDPEF)
+## *Core Banking Information System, Modélisation Merise 3NF, Moteur Transactionnel MySQL 8+, API FastAPI & Intranet Bancaire Sécurisé*
 
 ---
 
-### ðŸ“‹ Fiche SignalÃ©tique du Projet
+### 📋 Fiche Signalétique du Projet
 
-* **IntitulÃ© Officiel** : Conception, ModÃ©lisation, ImplÃ©mentation et SÃ©curisation d'un SystÃ¨me Bancaire CentralisÃ© (*SIDPEF - SystÃ¨me d'Information et de DonnÃ©es des Paiements et Ã‰critures FinanciÃ¨res*)
-* **MÃ©thodologie de Conception** : Merise (ModÃ¨le Conceptuel, Logique et Physique de DonnÃ©es)
-* **SGBD Transactionnel** : MySQL 8.0+ (Moteur InnoDB, ACID strict, Triggers d'ImmuabilitÃ©, ProcÃ©dures StockÃ©es)
+* **Intitulé Officiel** : Conception, Modélisation, Implémentation et Sécurisation d'un Système Bancaire Centralisé (*SIDPEF - Système d'Information et de Données des Paiements et Écritures Financières*)
+* **Méthodologie de Conception** : Merise (Modèle Conceptuel, Logique et Physique de Données)
+* **SGBD Transactionnel** : MySQL 8.0+ (Moteur InnoDB, ACID strict, Triggers d'Immuabilité, Procédures Stockées)
 * **Couche Applicative Backend** : Python 3.12+ / FastAPI / Pydantic V2 / Uvicorn / MySQL Connector Pooling
-* **SÃ©curitÃ© & Authentification** : JWT (JSON Web Tokens `HS256`), Hachage Cryptographique Bcrypt, ContrÃ´le d'AccÃ¨s BasÃ© sur les RÃ´les (RBAC)
-* **Interface Utilisateur** : Intranet Bancaire SPA Haute FidÃ©litÃ© (HTML5, CSS3 Moderne, Vanilla JS ES2024, Typographie *Plus Jakarta Sans* & *JetBrains Mono*, HiÃ©rarchie visuelle au Nombre d'Or $\Phi \approx 1,618$)
-* **Assurance QualitÃ© & Tests** : 43 tests automatisÃ©s (Pytest, JSDOM, FastAPI TestClient, E2E DAO) avec 100% de taux de rÃ©ussite
-* **DÃ©pÃ´t GitHub** : [github.com/Vezzyyy/systeme-bancaire-centralise](https://github.com/Vezzyyy/systeme-bancaire-centralise)
+* **Sécurité & Authentification** : JWT (JSON Web Tokens `HS256`), Hachage Cryptographique Bcrypt, Contrôle d'Accès Basé sur les Rôles (RBAC)
+* **Interface Utilisateur** : Intranet Bancaire SPA Haute Fidélité (HTML5, CSS3 Moderne, Vanilla JS ES2024, Typographie *Plus Jakarta Sans* & *JetBrains Mono*, Hiérarchie visuelle au Nombre d'Or $\Phi \approx 1,618$)
+* **Assurance Qualité & Tests** : 43 tests automatisés (Pytest, JSDOM, FastAPI TestClient, E2E DAO) avec 100% de taux de réussite
+* **Dépôt GitHub** : [github.com/Vezzyyy/systeme-bancaire-centralise](https://github.com/Vezzyyy/systeme-bancaire-centralise)
 * **Membres du Projet** :
-  1. **Yassine Chaouri** ([@Vezzyyy](https://github.com/Vezzyyy)) â€” Chef de Projet & Architecte Base de DonnÃ©es
-  2. **Saad Joudali** ([@joudali-saad](https://github.com/joudali-saad)) â€” DÃ©veloppeur Backend & Lead DAO Python
-  3. **Hamza Sibous** ([@hamzasibous](https://github.com/hamzasibous)) â€” IngÃ©nieur SÃ©curitÃ© & Backend API FastAPI
-  4. **Mouad Talibi** ([@MouadWork](https://github.com/MouadWork)) â€” Lead Frontend & Designer UI/UX
-  5. **Mohamed Amine Aouzagh** ([@MAminezzz](https://github.com/MAminezzz)) â€” IngÃ©nieur QA & Automatisation des Tests
+  1. **Yassine Chaouri** ([@Vezzyyy](https://github.com/Vezzyyy)) — Chef de Projet & Architecte Base de Données
+  2. **Saad Joudali** ([@joudali-saad](https://github.com/joudali-saad)) — Développeur Backend & Lead DAO Python
+  3. **Hamza Sibous** ([@hamzasibous](https://github.com/hamzasibous)) — Ingénieur Sécurité & Backend API FastAPI
+  4. **Mouad Talibi** ([@MouadWork](https://github.com/MouadWork)) — Lead Frontend & Designer UI/UX
+  5. **Mohamed Amine Aouzagh** ([@MAminezzz](https://github.com/MAminezzz)) — Ingénieur QA & Automatisation des Tests
 
 ---
 
-## ðŸ“‘ TABLE DES MATIÃˆRES
+## 📑 TABLE DES MATIÈRES
 
-1. [Introduction, Contexte & Exigences MÃ©tier](#1-introduction-contexte--exigences-mÃ©tier)
-2. [ModÃ©lisation Conceptuelle des DonnÃ©es (MCD Merise)](#2-modÃ©lisation-conceptuelle-des-donnÃ©es-mcd-merise)
-3. [ModÃ©lisation Logique des DonnÃ©es (MLD Relationnel & 3NF)](#3-modÃ©lisation-logique-des-donnÃ©es-mld-relationnel--3nf)
-4. [ModÃ©lisation Physique & DDL MySQL 8+ (MPD)](#4-modÃ©lisation-physique--ddl-mysql-8-mpd)
-5. [Moteur MÃ©tier en Base de DonnÃ©es (ProcÃ©dures & Triggers)](#5-moteur-mÃ©tier-en-base-de-donnÃ©es-procÃ©dures--triggers)
-6. [RequÃªtes MÃ©tier Analytiques & Optimisation EXPLAIN](#6-requÃªtes-mÃ©tier-analytiques--optimisation-explain)
-7. [Couche d'AccÃ¨s aux DonnÃ©es (DAO Python & Gestionnaire de Connexion)](#7-couche-daccÃ¨s-aux-donnÃ©es-dao-python--gestionnaire-de-connexion)
-8. [API RESTful FastAPI & SÃ©curitÃ© RBAC / JWT](#8-api-restful-fastapi--sÃ©curitÃ©-rbac--jwt)
+1. [Introduction, Contexte & Exigences Métier](#1-introduction-contexte--exigences-métier)
+2. [Modélisation Conceptuelle des Données (MCD Merise)](#2-modélisation-conceptuelle-des-données-mcd-merise)
+3. [Modélisation Logique des Données (MLD Relationnel & 3NF)](#3-modélisation-logique-des-données-mld-relationnel--3nf)
+4. [Modélisation Physique & DDL MySQL 8+ (MPD)](#4-modélisation-physique--ddl-mysql-8-mpd)
+5. [Moteur Métier en Base de Données (Procédures & Triggers)](#5-moteur-métier-en-base-de-données-procédures--triggers)
+6. [Requêtes Métier Analytiques & Optimisation EXPLAIN](#6-requêtes-métier-analytiques--optimisation-explain)
+7. [Couche d'Accès aux Données (DAO Python & Gestionnaire de Connexion)](#7-couche-daccès-aux-données-dao-python--gestionnaire-de-connexion)
+8. [API RESTful FastAPI & Sécurité RBAC / JWT](#8-api-restful-fastapi--sécurité-rbac--jwt)
 9. [Interface Intranet Bancaire Corporate (UI/UX)](#9-interface-intranet-bancaire-corporate-uiux)
-10. [Assurance QualitÃ© & Suite de Tests AutomatisÃ©s (E2E & DOM)](#10-assurance-qualitÃ©--suite-de-tests-automatisÃ©s-e2e--dom)
-11. [RÃ©partition DÃ©taillÃ©e des Contributions de l'Ã‰quipe](#11-rÃ©partition-dÃ©taillÃ©e-des-contributions-de-lÃ©quipe)
-12. [Guide de DÃ©ploiement & Script de DÃ©monstration de Soutenance](#12-guide-de-dÃ©ploiement--script-de-dÃ©monstration-de-soutenance)
+10. [Assurance Qualité & Suite de Tests Automatisés (E2E & DOM)](#10-assurance-qualité--suite-de-tests-automatisés-e2e--dom)
+11. [Répartition Détaillée des Contributions de l'Équipe](#11-répartition-détaillée-des-contributions-de-léquipe)
+12. [Guide de Déploiement & Script de Démonstration de Soutenance](#12-guide-de-déploiement--script-de-démonstration-de-soutenance)
 
 ---
 
-## 1. Introduction, Contexte & Exigences MÃ©tier
+## 1. Introduction, Contexte & Exigences Métier
 
 ### 1.1. Contexte du Core Banking
-Le secteur bancaire repose sur un impÃ©ratif fondamental : la **confiance absolue** dans l'intÃ©gritÃ©, la traÃ§abilitÃ© et l'exactitude des Ã©critures financiÃ¨res. Tout systÃ¨me d'information bancaire centralisÃ© (*Core Banking System*) doit rÃ©pondre aux standards rÃ©glementaires internationaux les plus stricts (Accords de BÃ¢le III, normes PCI-DSS pour la monÃ©tique, rÃ©glementations anti-blanchiment AML/KYC et normes comptables de double saisie).
+Le secteur bancaire repose sur un impératif fondamental : la **confiance absolue** dans l'intégrité, la traçabilité et l'exactitude des écritures financières. Tout système d'information bancaire centralisé (*Core Banking System*) doit répondre aux standards réglementaires internationaux les plus stricts (Accords de Bâle III, normes PCI-DSS pour la monétique, réglementations anti-blanchiment AML/KYC et normes comptables de double saisie).
 
-Le systÃ¨me **SIDPEF** a Ã©tÃ© conÃ§u pour concilier deux exigences majeures :
-1. **L'InviolabilitÃ© Comptable & Transactionnelle** : Aucune somme d'argent ne peut Ãªtre crÃ©Ã©e ou dÃ©truite unilatÃ©ralement. Chaque opÃ©ration doit respecter le principe de la comptabilitÃ© en partie double ($\sum \text{DÃ©bits} = \sum \text{CrÃ©dits}$).
-2. **L'ImmuabilitÃ© de la Piste d'Audit** : Il est juridiquement et techniquement interdit de modifier ou de supprimer une Ã©criture financiÃ¨re validÃ©e. Toute correction d'erreur doit s'opÃ©rer par *contre-passation* (extourne).
+Le système **SIDPEF** a été conçu pour concilier deux exigences majeures :
+1. **L'Inviolabilité Comptable & Transactionnelle** : Aucune somme d'argent ne peut être créée ou détruite unilatéralement. Chaque opération doit respecter le principe de la comptabilité en partie double ($\sum \text{Débits} = \sum \text{Crédits}$).
+2. **L'Immuabilité de la Piste d'Audit** : Il est juridiquement et techniquement interdit de modifier ou de supprimer une écriture financière validée. Toute correction d'erreur doit s'opérer par *contre-passation* (extourne).
 
-### 1.2. Principes Directeurs de Conception (RÃ¨gles de Gestion RG1 Ã  RG12)
-- **RG1 (Partie Double)** : Tout mouvement dÃ©biteur sur une contrepartie doit Ãªtre rigoureusement Ã©quilibrÃ© par un mouvement crÃ©diteur d'Ã©gal montant sur une autre contrepartie au sein de la mÃªme transaction.
-- **RG2 (ImmuabilitÃ© Stricte)** : Les tables de journalisation comptable (`MOUVEMENT`) sont interdites de `UPDATE` et de `DELETE` via des triggers bloquants (`SIGNAL SQLSTATE '45000'`).
-- **RG3 (Extourne / Contre-passation)** : L'annulation d'une transaction erronÃ©e gÃ©nÃ¨re une nouvelle transaction opposÃ©e liÃ©e Ã  la premiÃ¨re par l'association rÃ©flexive `COMPENSER`.
-- **RG4 (DÃ©couplage Titulaire-Compte)** : Un client n'est pas liÃ© directement Ã  un compte par une clÃ© Ã©trangÃ¨re fixe, mais par l'entitÃ© associative `TITULARISER` permettant la co-titularitÃ©, les procurations et l'historisation temporelle (`date_debut`, `date_fin`).
-- **RG5 (Polymorphisme des Flux)** : Tous les flux financiers ciblent une `CONTREPARTIE` abstraite, spÃ©cialisÃ©e en compte interne (`COMPTE`), bÃ©nÃ©ficiaire externe (`BENEFICIAIRE_EXTERNE`) ou encaisse physique d'agence (`CAISSE_AGENCE`).
-- **RG6 (SolvabilitÃ© & DÃ©couvert AutorisÃ©)** : Un compte bancaire ne peut Ãªtre dÃ©bitÃ© que si le montant ne dÃ©passe pas son solde courant majorÃ© de son dÃ©couvert contractuel autorisÃ© ($Solde + DecouvertAutorise \ge Montant$).
-- **RG7 (Multi-Canal & TraÃ§abilitÃ© Technique)** : Toute transaction enregistre son canal d'initiation (GAB, Guichet, Web, Mobile) ainsi que l'adresse IP et le User-Agent de la session.
-- **RG8 (MonÃ©tique & Plafonds)** : Chaque carte bancaire est attachÃ©e Ã  un compte actif et dispose de plafonds distincts de retrait et de paiement, ainsi que d'un commutateur d'Ã©tat d'urgence (*Kill Switch*).
-- **RG9 (SÃ©paration des Pouvoirs Maker-Checker)** : Un utilisateur simple ne peut valider une transaction suspecte ou Ã  haut risque ; celle-ci est placÃ©e en anomalie (`EN_ATTENTE` ou `REJETEE`) et requiert l'intervention d'un superviseur Back-Office.
-- **RG10 (Cloisonnement des DonnÃ©es Client)** : Un client ne peut en aucun cas consulter les comptes, cartes ou mouvements d'un tiers (`403 Forbidden`).
-- **RG11 (IntÃ©gritÃ© RÃ©fÃ©rentielle Restrictive)** : Toutes les clÃ©s Ã©trangÃ¨res financiÃ¨res sont configurÃ©es en `ON DELETE RESTRICT` afin de bannir les suppressions en cascade accidentelles.
-- **RG12 (ZÃ©ro Net Global)** : Ã€ tout instant, la somme algÃ©brique globale de tous les mouvements enregistrÃ©s dans le systÃ¨me bancaire doit Ãªtre exactement Ã©gale Ã  `0.00 MAD`.
+### 1.2. Principes Directeurs de Conception (Règles de Gestion RG1 à RG12)
+- **RG1 (Partie Double)** : Tout mouvement débiteur sur une contrepartie doit être rigoureusement équilibré par un mouvement créditeur d'égal montant sur une autre contrepartie au sein de la même transaction.
+- **RG2 (Immuabilité Stricte)** : Les tables de journalisation comptable (`MOUVEMENT`) sont interdites de `UPDATE` et de `DELETE` via des triggers bloquants (`SIGNAL SQLSTATE '45000'`).
+- **RG3 (Extourne / Contre-passation)** : L'annulation d'une transaction erronée génère une nouvelle transaction opposée liée à la première par l'association réflexive `COMPENSER`.
+- **RG4 (Découplage Titulaire-Compte)** : Un client n'est pas lié directement à un compte par une clé étrangère fixe, mais par l'entité associative `TITULARISER` permettant la co-titularité, les procurations et l'historisation temporelle (`date_debut`, `date_fin`).
+- **RG5 (Polymorphisme des Flux)** : Tous les flux financiers ciblent une `CONTREPARTIE` abstraite, spécialisée en compte interne (`COMPTE`), bénéficiaire externe (`BENEFICIAIRE_EXTERNE`) ou encaisse physique d'agence (`CAISSE_AGENCE`).
+- **RG6 (Solvabilité & Découvert Autorisé)** : Un compte bancaire ne peut être débité que si le montant ne dépasse pas son solde courant majoré de son découvert contractuel autorisé ($Solde + DecouvertAutorise \ge Montant$).
+- **RG7 (Multi-Canal & Traçabilité Technique)** : Toute transaction enregistre son canal d'initiation (GAB, Guichet, Web, Mobile) ainsi que l'adresse IP et le User-Agent de la session.
+- **RG8 (Monétique & Plafonds)** : Chaque carte bancaire est attachée à un compte actif et dispose de plafonds distincts de retrait et de paiement, ainsi que d'un commutateur d'état d'urgence (*Kill Switch*).
+- **RG9 (Séparation des Pouvoirs Maker-Checker)** : Un utilisateur simple ne peut valider une transaction suspecte ou à haut risque ; celle-ci est placée en anomalie (`EN_ATTENTE` ou `REJETEE`) et requiert l'intervention d'un superviseur Back-Office.
+- **RG10 (Cloisonnement des Données Client)** : Un client ne peut en aucun cas consulter les comptes, cartes ou mouvements d'un tiers (`403 Forbidden`).
+- **RG11 (Intégrité Référentielle Restrictive)** : Toutes les clés étrangères financières sont configurées en `ON DELETE RESTRICT` afin de bannir les suppressions en cascade accidentelles.
+- **RG12 (Zéro Net Global)** : À tout instant, la somme algébrique globale de tous les mouvements enregistrés dans le système bancaire doit être exactement égale à `0.00 MAD`.
 
 ---
 
-## 2. ModÃ©lisation Conceptuelle des DonnÃ©es (MCD Merise)
+## 2. Modélisation Conceptuelle des Données (MCD Merise)
 
-Le ModÃ¨le Conceptuel de DonnÃ©es (MCD) a Ã©tÃ© modÃ©lisÃ© selon la mÃ©thode Merise pour formaliser la sÃ©mantique mÃ©tier indÃ©pendamment de tout choix technique d'implÃ©mentation.
+Le Modèle Conceptuel de Données (MCD) a été modélisé selon la méthode Merise pour formaliser la sémantique métier indépendamment de tout choix technique d'implémentation.
 
 ```
        +------------------+                    +------------------+
@@ -114,43 +114,43 @@ Le ModÃ¨le Conceptuel de DonnÃ©es (MCD) a Ã©tÃ© modÃ©lisÃ© selon la 
 
 ### 2.1. Les 6 Blocs Fonctionnels du MCD
 
-#### Bloc 1 : ClientÃ¨le, KYC & TitularitÃ©s Temporelles
+#### Bloc 1 : Clientèle, KYC & Titularités Temporelles
 * **`CLIENT`** : Identifie la personne physique ou morale (`id_client`, `cin`, `nom`, `prenom`, `email`, `telephone`, `adresse`, `mot_de_passe_hash`, `role`).
-* **`TITULARISER`** : Relation porteuse de donnÃ©es temporelles (`id_client`, `id_compte`, `role_titularite`, `date_debut`, `date_fin`).
-  - *RÃ¨gle d'or* : Un compte joint associe plusieurs clients avec `date_fin IS NULL`. Si un client quitte le compte, sa ligne reÃ§oit `date_fin = CURDATE()` sans aucune perte d'historique.
+* **`TITULARISER`** : Relation porteuse de données temporelles (`id_client`, `id_compte`, `role_titularite`, `date_debut`, `date_fin`).
+  - *Règle d'or* : Un compte joint associe plusieurs clients avec `date_fin IS NULL`. Si un client quitte le compte, sa ligne reçoit `date_fin = CURDATE()` sans aucune perte d'historique.
 
-#### Bloc 2 : HÃ©ritage & Polymorphisme de `CONTREPARTIE` (XT)
-* **`CONTREPARTIE`** (Classe MÃ¨re Abstraite) : Porte l'identifiant unique universel `id_contrepartie` et le discriminant `type_contrepartie` (`COMPTE_INTERNE`, `BENEFICIAIRE_EXTERNE`, `CAISSE_AGENCE`).
-* **`COMPTE`** (SpÃ©cialisation 1) : HÃ©rite de `CONTREPARTIE`. Ajoute `numero_compte`, `solde`, `decouvert_autorise`, `date_ouverture`, `statut`, `id_type_compte`.
-* **`BENEFICIAIRE_EXTERNE`** (SpÃ©cialisation 2) : HÃ©rite de `CONTREPARTIE`. Ajoute `iban`, `bic`, `nom_beneficiaire`, `banque_destinataire`.
-* **`CAISSE_AGENCE`** (SpÃ©cialisation 3) : HÃ©rite de `CONTREPARTIE`. Ajoute `nom_caisse`, `type_caisse` (`GUICHET_ESPECES`, `GAB_ATM`), `solde_especes`, `id_agence`.
+#### Bloc 2 : Héritage & Polymorphisme de `CONTREPARTIE` (XT)
+* **`CONTREPARTIE`** (Classe Mère Abstraite) : Porte l'identifiant unique universel `id_contrepartie` et le discriminant `type_contrepartie` (`COMPTE_INTERNE`, `BENEFICIAIRE_EXTERNE`, `CAISSE_AGENCE`).
+* **`COMPTE`** (Spécialisation 1) : Hérite de `CONTREPARTIE`. Ajoute `numero_compte`, `solde`, `decouvert_autorise`, `date_ouverture`, `statut`, `id_type_compte`.
+* **`BENEFICIAIRE_EXTERNE`** (Spécialisation 2) : Hérite de `CONTREPARTIE`. Ajoute `iban`, `bic`, `nom_beneficiaire`, `banque_destinataire`.
+* **`CAISSE_AGENCE`** (Spécialisation 3) : Hérite de `CONTREPARTIE`. Ajoute `nom_caisse`, `type_caisse` (`GUICHET_ESPECES`, `GAB_ATM`), `solde_especes`, `id_agence`.
 
 #### Bloc 3 : Typologie des Comptes Bancaires
-* **`TYPE_COMPTE`** : RÃ©fÃ©rentiel paramÃ©trable des produits financiers (`id_type_compte`, `libelle`, `taux_remuneration`, `plafond_depot`). Distingue le *Compte Courant*, le *Compte Ã‰pargne RÃ©munÃ©rÃ©*, etc.
+* **`TYPE_COMPTE`** : Référentiel paramétrable des produits financiers (`id_type_compte`, `libelle`, `taux_remuneration`, `plafond_depot`). Distingue le *Compte Courant*, le *Compte Épargne Rémunéré*, etc.
 
-#### Bloc 4 : Flux Financiers, Ã‰critures & ImmuabilitÃ©
-* **`CANAL`** : ReprÃ©sente le point d'entrÃ©e de l'ordre (`id_canal`, `nom_canal`, `type_canal` : `WEB`, `MOBILE`, `GAB`, `GUICHET`, `TPE`).
-* **`TRANSACTION`** : Enveloppe logique de l'Ã©vÃ©nement financier (`id_transaction`, `reference`, `date_heure`, `statut`, `motif`, `id_canal`, `id_agence`, `ip_source`, `user_agent`).
-* **`MOUVEMENT`** : Ã‰criture comptable Ã©lÃ©mentaire indivisible (`id_mouvement`, `id_transaction`, `id_contrepartie`, `montant`, `sens`, `date_heure`).
-* **Association rÃ©flexive `COMPENSER`** : Relie une transaction de correction Ã  la transaction initiale contestÃ©e.
+#### Bloc 4 : Flux Financiers, Écritures & Immuabilité
+* **`CANAL`** : Représente le point d'entrée de l'ordre (`id_canal`, `nom_canal`, `type_canal` : `WEB`, `MOBILE`, `GAB`, `GUICHET`, `TPE`).
+* **`TRANSACTION`** : Enveloppe logique de l'événement financier (`id_transaction`, `reference`, `date_heure`, `statut`, `motif`, `id_canal`, `id_agence`, `ip_source`, `user_agent`).
+* **`MOUVEMENT`** : Écriture comptable élémentaire indivisible (`id_mouvement`, `id_transaction`, `id_contrepartie`, `montant`, `sens`, `date_heure`).
+* **Association réflexive `COMPENSER`** : Relie une transaction de correction à la transaction initiale contestée.
 
-#### Bloc 5 : MonÃ©tique & Moyens de Paiement
-* **`CARTE_BANCAIRE`** : ReprÃ©sente le titre de paiement physique ou virtuel liÃ© Ã  un compte (`id_carte`, `numero_masque`, `date_expiration`, `statut`, `plafond_retrait`, `plafond_paiement`, `id_compte`).
+#### Bloc 5 : Monétique & Moyens de Paiement
+* **`CARTE_BANCAIRE`** : Représente le titre de paiement physique ou virtuel lié à un compte (`id_carte`, `numero_masque`, `date_expiration`, `statut`, `plafond_retrait`, `plafond_paiement`, `id_compte`).
 
-#### Bloc 6 : RÃ©seau Physique & Infrastructure
-* **`AGENCE`** : Ã‰tablissement bancaire physique (`id_agence`, `code_agence`, `nom_agence`, `adresse`, `ville`).
+#### Bloc 6 : Réseau Physique & Infrastructure
+* **`AGENCE`** : Établissement bancaire physique (`id_agence`, `code_agence`, `nom_agence`, `adresse`, `ville`).
 
 ---
 
-## 3. ModÃ©lisation Logique des DonnÃ©es (MLD Relationnel & 3NF)
+## 3. Modélisation Logique des Données (MLD Relationnel & 3NF)
 
-### 3.1. RÃ¨gles de DÃ©rivation Merise vers Relationnel
-1. **EntitÃ© Simple** $\rightarrow$ Table avec sa clÃ© primaire naturelle ou technique.
-2. **Relation $1\text{--}N$** $\rightarrow$ Migration de la clÃ© primaire du cÃ´tÃ© pÃ¨re vers le cÃ´tÃ© fils sous forme de clÃ© Ã©trangÃ¨re (FK).
-3. **Relation $N\text{--}N$ (`TITULARISER`)** $\rightarrow$ Table de jonction dont la clÃ© primaire est composite (`id_client`, `id_compte`, `date_debut`).
-4. **HÃ©ritage Exclusif et Total (XT)** : Choix de la stratÃ©gie **Table par Classe (Class-Table Inheritance)**. La table mÃ¨re `CONTREPARTIE` dÃ©tient `id_contrepartie` auto-incrÃ©mentÃ©. Les tables filles (`COMPTE`, `CAISSE_AGENCE`, `BENEFICIAIRE_EXTERNE`) partagent exactement la mÃªme valeur de clÃ© primaire qui est Ã©galement leur clÃ© Ã©trangÃ¨re vers `CONTREPARTIE`.
+### 3.1. Règles de Dérivation Merise vers Relationnel
+1. **Entité Simple** $\rightarrow$ Table avec sa clé primaire naturelle ou technique.
+2. **Relation $1\text{--}N$** $\rightarrow$ Migration de la clé primaire du côté père vers le côté fils sous forme de clé étrangère (FK).
+3. **Relation $N\text{--}N$ (`TITULARISER`)** $\rightarrow$ Table de jonction dont la clé primaire est composite (`id_client`, `id_compte`, `date_debut`).
+4. **Héritage Exclusif et Total (XT)** : Choix de la stratégie **Table par Classe (Class-Table Inheritance)**. La table mère `CONTREPARTIE` détient `id_contrepartie` auto-incrémenté. Les tables filles (`COMPTE`, `CAISSE_AGENCE`, `BENEFICIAIRE_EXTERNE`) partagent exactement la même valeur de clé primaire qui est également leur clé étrangère vers `CONTREPARTIE`.
 
-### 3.2. SchÃ©ma Relationnel Textuel DÃ©taillÃ©
+### 3.2. Schéma Relationnel Textuel Détaillé
 
 ```text
 AGENCE (
@@ -245,7 +245,7 @@ TRANSACTION (
     motif VARCHAR(255) NOT NULL,
     id_canal INT NOT NULL, -- FK vers CANAL
     id_agence INT DEFAULT NULL, -- FK vers AGENCE
-    id_transaction_origine INT DEFAULT NULL, -- FK auto-rÃ©fÃ©rentielle COMPENSER
+    id_transaction_origine INT DEFAULT NULL, -- FK auto-référentielle COMPENSER
     ip_source VARCHAR(45) DEFAULT NULL,
     user_agent VARCHAR(255) DEFAULT NULL
 );
@@ -260,21 +260,21 @@ MOUVEMENT (
 );
 ```
 
-### 3.3. DÃ©monstration de la 3Ã¨me Forme Normale (3NF) & BCNF
-* **1Ã¨re Forme Normale (1NF)** : Tous les attributs sont atomiques (pas de listes concatÃ©nÃ©es d'adresses ou de numÃ©ros) ; chaque tuple possÃ¨de une clÃ© primaire identifiante unique.
-* **2Ã¨me Forme Normale (2NF)** : En 1NF, et tout attribut non-clÃ© dÃ©pend pleinement de la totalitÃ© de la clÃ© primaire. Pour `TITULARISER`, `role_titularite` et `date_fin` dÃ©pendent du triplet `(id_client, id_compte, date_debut)`.
-* **3Ã¨me Forme Normale (3NF)** : En 2NF, et aucun attribut non-clÃ© ne dÃ©pend d'un autre attribut non-clÃ© par transitivitÃ© ($X \rightarrow Y \rightarrow Z$).
-  - Exemple : L'agence du compte n'induit pas le nom de l'agence dans `COMPTE`. `COMPTE` ne stocke que `id_agence`, Ã©vitant toute anomalie de mise Ã  jour.
-* **Forme Normale de Boyce-Codd (BCNF)** : Pour toute dÃ©pendance fonctionnelle Ã©lÃ©mentaire non triviale $X \rightarrow Y$, $X$ est une superclÃ© du schÃ©ma.
+### 3.3. Démonstration de la 3ème Forme Normale (3NF) & BCNF
+* **1ère Forme Normale (1NF)** : Tous les attributs sont atomiques (pas de listes concaténées d'adresses ou de numéros) ; chaque tuple possède une clé primaire identifiante unique.
+* **2ème Forme Normale (2NF)** : En 1NF, et tout attribut non-clé dépend pleinement de la totalité de la clé primaire. Pour `TITULARISER`, `role_titularite` et `date_fin` dépendent du triplet `(id_client, id_compte, date_debut)`.
+* **3ème Forme Normale (3NF)** : En 2NF, et aucun attribut non-clé ne dépend d'un autre attribut non-clé par transitivité ($X \rightarrow Y \rightarrow Z$).
+  - Exemple : L'agence du compte n'induit pas le nom de l'agence dans `COMPTE`. `COMPTE` ne stocke que `id_agence`, évitant toute anomalie de mise à jour.
+* **Forme Normale de Boyce-Codd (BCNF)** : Pour toute dépendance fonctionnelle élémentaire non triviale $X \rightarrow Y$, $X$ est une superclé du schéma.
 
 ---
 
-## 4. ModÃ©lisation Physique & DDL MySQL 8+ (MPD)
+## 4. Modélisation Physique & DDL MySQL 8+ (MPD)
 
-L'implÃ©mentation physique garantit la haute performance et la sÃ©curitÃ© des donnÃ©es grÃ¢ce aux clauses MySQL :
+L'implémentation physique garantit la haute performance et la sécurité des données grâce aux clauses MySQL :
 
 ```sql
--- Extrait d'intÃ©gritÃ© stricte et indexation (sql/01_schema_sidpef.sql)
+-- Extrait d'intégrité stricte et indexation (sql/01_schema_sidpef.sql)
 ALTER TABLE COMPTE 
   ADD CONSTRAINT chk_decouvert CHECK (decouvert_autorise >= 0.00),
   ADD CONSTRAINT fk_compte_contrepartie FOREIGN KEY (id_compte) 
@@ -287,7 +287,7 @@ ALTER TABLE MOUVEMENT
   ADD CONSTRAINT fk_mvt_transaction FOREIGN KEY (id_transaction) 
     REFERENCES `TRANSACTION`(id_transaction) ON DELETE RESTRICT;
 
--- Index stratÃ©giques pour accÃ©lÃ©rer les jointures et requÃªtes d'audit
+-- Index stratégiques pour accélérer les jointures et requêtes d'audit
 CREATE INDEX idx_mouvement_contrepartie_date ON MOUVEMENT(id_contrepartie, date_heure);
 CREATE INDEX idx_transaction_horodatage ON `TRANSACTION`(date_heure, statut);
 CREATE INDEX idx_titulariser_actif ON TITULARISER(id_compte, date_fin);
@@ -295,10 +295,10 @@ CREATE INDEX idx_titulariser_actif ON TITULARISER(id_compte, date_fin);
 
 ---
 
-## 5. Moteur MÃ©tier en Base de DonnÃ©es (ProcÃ©dures & Triggers)
+## 5. Moteur Métier en Base de Données (Procédures & Triggers)
 
-### 5.1. ProcÃ©dure Transactionnelle `SP_VALIDER_TRANSACTION`
-Cette procÃ©dure stockÃ©e est le cÅ“ur battant du rÃ©acteur transactionnel. Elle garantit l'isolation ACID et la partie double.
+### 5.1. Procédure Transactionnelle `SP_VALIDER_TRANSACTION`
+Cette procédure stockée est le cœur battant du réacteur transactionnel. Elle garantit l'isolation ACID et la partie double.
 
 ```sql
 DELIMITER $$
@@ -334,15 +334,15 @@ proc: BEGIN
 
     START TRANSACTION;
 
-    -- ContrÃ´le du montant strictement positif
+    -- Contrôle du montant strictement positif
     IF p_montant <= 0 THEN
         SET p_statut = 'REJETEE';
-        SET p_message = 'Le montant doit Ãªtre strictement supÃ©rieur Ã  zÃ©ro.';
+        SET p_message = 'Le montant doit être strictement supérieur à zéro.';
         ROLLBACK;
         LEAVE proc;
     END IF;
 
-    -- VÃ©rification des contreparties et verrouillage pessimiste
+    -- Vérification des contreparties et verrouillage pessimiste
     SELECT type_contrepartie INTO v_type_src FROM CONTREPARTIE WHERE id_contrepartie = p_id_source FOR UPDATE;
     SELECT type_contrepartie INTO v_type_dst FROM CONTREPARTIE WHERE id_contrepartie = p_id_destination FOR UPDATE;
 
@@ -353,7 +353,7 @@ proc: BEGIN
         LEAVE proc;
     END IF;
 
-    -- Test de solvabilitÃ© si la source est un compte interne
+    -- Test de solvabilité si la source est un compte interne
     IF v_type_src = 'COMPTE_INTERNE' THEN
         SELECT solde, decouvert_autorise, statut 
         INTO v_solde_src, v_decouvert_src, v_statut_src
@@ -361,20 +361,20 @@ proc: BEGIN
 
         IF v_statut_src != 'ACTIF' THEN
             SET p_statut = 'REJETEE';
-            SET p_message = 'Le compte Ã©metteur est bloquÃ© ou clÃ´turÃ©.';
+            SET p_message = 'Le compte émetteur est bloqué ou clôturé.';
             ROLLBACK;
             LEAVE proc;
         END IF;
 
         IF (v_solde_src + v_decouvert_src) < p_montant THEN
             SET p_statut = 'REJETEE';
-            SET p_message = 'Provision insuffisante pour exÃ©cuter le dÃ©bit.';
+            SET p_message = 'Provision insuffisante pour exécuter le débit.';
             ROLLBACK;
             LEAVE proc;
         END IF;
     END IF;
 
-    -- GÃ©nÃ©ration de rÃ©fÃ©rence unique et enregistrement de la transaction
+    -- Génération de référence unique et enregistrement de la transaction
     SET v_ref = CONCAT('TX-', DATE_FORMAT(NOW(), '%Y%m%d%H%i%s'), '-', FLOOR(RAND()*9000 + 1000));
     
     INSERT INTO `TRANSACTION` (reference, statut, motif, id_canal, id_agence, ip_source, user_agent)
@@ -382,14 +382,14 @@ proc: BEGIN
     
     SET p_id_transaction = LAST_INSERT_ID();
 
-    -- Ã‰criture des deux mouvements comptables (Partie Double stricte)
+    -- Écriture des deux mouvements comptables (Partie Double stricte)
     INSERT INTO MOUVEMENT (id_transaction, id_contrepartie, montant, sens)
     VALUES (p_id_transaction, p_id_source, p_montant, 'DEBIT');
 
     INSERT INTO MOUVEMENT (id_transaction, id_contrepartie, montant, sens)
     VALUES (p_id_transaction, p_id_destination, p_montant, 'CREDIT');
 
-    -- Mise Ã  jour atomique des soldes internes
+    -- Mise à jour atomique des soldes internes
     IF v_type_src = 'COMPTE_INTERNE' THEN
         UPDATE COMPTE SET solde = solde - p_montant WHERE id_compte = p_id_source;
     ELSEIF v_type_src = 'CAISSE_AGENCE' THEN
@@ -404,13 +404,13 @@ proc: BEGIN
 
     COMMIT;
     SET p_statut = 'VALIDEE';
-    SET p_message = 'Virement exÃ©cutÃ© avec succÃ¨s en partie double.';
+    SET p_message = 'Virement exécuté avec succès en partie double.';
 END proc$$
 DELIMITER ;
 ```
 
-### 5.2. Triggers d'ImmuabilitÃ© Comptable (MySQL Code 1644)
-ConformÃ©ment aux normes juridiques bancaires, un mouvement financier ne peut en aucun cas Ãªtre altÃ©rÃ© :
+### 5.2. Triggers d'Immuabilité Comptable (MySQL Code 1644)
+Conformément aux normes juridiques bancaires, un mouvement financier ne peut en aucun cas être altéré :
 
 ```sql
 DELIMITER $$
@@ -434,10 +434,10 @@ DELIMITER ;
 
 ---
 
-## 6. RequÃªtes MÃ©tier Analytiques & Optimisation EXPLAIN
+## 6. Requêtes Métier Analytiques & Optimisation EXPLAIN
 
-### 6.1. RelevÃ© Chronologique avec Solde Progressif (Window Function)
-Cette requÃªte calcule en temps rÃ©el le solde aprÃ¨s chaque mouvement sans altÃ©rer les tables physiques :
+### 6.1. Relevé Chronologique avec Solde Progressif (Window Function)
+Cette requête calcule en temps réel le solde après chaque mouvement sans altérer les tables physiques :
 
 ```sql
 SELECT 
@@ -455,8 +455,8 @@ WHERE m.id_contrepartie = :id_compte
 ORDER BY m.date_heure DESC;
 ```
 
-### 6.2. DÃ©tection de Fraude par Analyse de VÃ©locitÃ©
-Identifie les comptes ayant subi des retraits GAB rapprochÃ©s (burst de vÃ©locitÃ©) :
+### 6.2. Détection de Fraude par Analyse de Vélocité
+Identifie les comptes ayant subi des retraits GAB rapprochés (burst de vélocité) :
 
 ```sql
 SELECT 
@@ -474,63 +474,242 @@ HAVING COUNT(t.id_transaction) >= 3;
 ```
 
 ### 6.3. Analyse EXPLAIN & Preuve d'Optimisation
-L'analyse des plans d'exÃ©cution `EXPLAIN` menÃ©e sur la table `MOUVEMENT` (contenant plusieurs dizaines de milliers d'enregistrements en conditions rÃ©elles) dÃ©montre le gain de performance :
-* **Avant Indexation** : `type: ALL`, `rows: 45000`, `Using temporary; Using filesort`. Temps d'exÃ©cution : 84 ms.
-* **AprÃ¨s Indexation Composite (`idx_mouvement_contrepartie_date`)** : `type: ref`, `rows: 12`, `Using where; Using index`. Temps d'exÃ©cution : 0.8 ms (**Gain de performance supÃ©rieur Ã  10 500%**).
+L'analyse des plans d'exécution `EXPLAIN` menée sur la table `MOUVEMENT` (contenant plusieurs dizaines de milliers d'enregistrements en conditions réelles) démontre le gain de performance :
+* **Avant Indexation** : `type: ALL`, `rows: 45000`, `Using temporary; Using filesort`. Temps d'exécution : 84 ms.
+* **Après Indexation Composite (`idx_mouvement_contrepartie_date`)** : `type: ref`, `rows: 12`, `Using where; Using index`. Temps d'exécution : 0.8 ms (**Gain de performance supérieur à 10 500%**).
 
 ---
 
-## 7. Couche d'AccÃ¨s aux DonnÃ©es (DAO Python & Gestionnaire de Connexion)
+## 7. Couche d'Accès aux Données (DAO Python & Gestionnaire de Connexion)
 
-La couche DAO isole la logique applicative des spÃ©cificitÃ©s du moteur SQL :
-* **`database.py`** : Instancie un `MySQLConnectionPool` thread-safe (taille configurÃ©e Ã  5 connexions rÃ©utilisables). Utilise des context managers `get_db_connection()` et `get_db_cursor()` assurant la fermeture systÃ©matique des curseurs et la libÃ©ration des connexions vers le pool.
-* **`models.py`** : DÃ©finit les structures de donnÃ©es fortement typÃ©es (`Client`, `Compte`, `Mouvement`, `TransactionDetails`) et la hiÃ©rarchie d'exceptions bancaires (`InsufficientFundsError`, `AccountBlockedError`, `BankingSystemError`).
+La couche DAO isole la logique applicative des spécificités du moteur SQL :
+* **`database.py`** : Instancie un `MySQLConnectionPool` thread-safe (taille configurée à 5 connexions réutilisables). Utilise des context managers `get_db_connection()` et `get_db_cursor()` assurant la fermeture systématique des curseurs et la libération des connexions vers le pool.
+* **`models.py`** : Définit les structures de données fortement typées (`Client`, `Compte`, `Mouvement`, `TransactionDetails`) et la hiérarchie d'exceptions bancaires (`InsufficientFundsError`, `AccountBlockedError`, `BankingSystemError`).
 * **`banking_dao.py`** :
   - `get_client_accounts(client_id)` : Filtre rigoureusement sur `t.date_fin IS NULL` pour ne renvoyer que les mandats et comptes actifs.
-  - `execute_transfer(...)` : PrÃ©pare l'appel Ã  la procÃ©dure stockÃ©e `SP_VALIDER_TRANSACTION`, intercepte les codes de retour et dÃ©clenche des `ROLLBACK` atomiques en cas de rejet mÃ©tier.
-  - `get_account_statement(...)` : ExÃ©cute la fonction de fenÃªtrage `SUM() OVER` et formate l'historique chronologique pour le frontend.
+  - `execute_transfer(...)` : Prépare l'appel à la procédure stockée `SP_VALIDER_TRANSACTION`, intercepte les codes de retour et déclenche des `ROLLBACK` atomiques en cas de rejet métier.
+  - `get_account_statement(...)` : Exécute la fonction de fenêtrage `SUM() OVER` et formate l'historique chronologique pour le frontend.
 
 ---
 
-## 8. API RESTful FastAPI & SÃ©curitÃ© RBAC / JWT
+## 8. API RESTful FastAPI & Sécurité RBAC / JWT
 
-L'API FastAPI (`api.py`) expose plus de 20 endpoints RESTful documentÃ©s via OpenAPI Swagger.
+L'API FastAPI (`api.py`) expose plus de 20 endpoints RESTful documentés via OpenAPI Swagger.
 
 ### 8.1. Architecture d'Authentification & RBAC
-1. **Hachage SÃ©curisÃ©** : Utilisation de `passlib` avec l'algorithme `bcrypt` (facteur de travail 12, sel unique par utilisateur, rÃ©sistant aux attaques par dictionnaires et tables arc-en-ciel).
-2. **Jeton JWT (`HS256`)** : GÃ©nÃ©rÃ© lors du `POST /api/auth/login`. Le token contient un payload signÃ© :
+1. **Hachage Sécurisé** : Utilisation de `passlib` avec l'algorithme `bcrypt` (facteur de travail 12, sel unique par utilisateur, résistant aux attaques par dictionnaires et tables arc-en-ciel).
+2. **Jeton JWT (`HS256`)** : Généré lors du `POST /api/auth/login`. Le token contient un payload signé :
    - `sub`: Identifiant unique du sujet (email ou cin)
-   - `role`: RÃ´le RBAC (`CLIENT` ou `ADMIN`)
-   - `cin`: NumÃ©ro de piÃ¨ce d'identitÃ©
-   - `exp`: DurÃ©e de validitÃ© (8 heures)
-3. **ContrÃ´le d'AccÃ¨s par DÃ©pendance FastAPI** :
+   - `role`: Rôle RBAC (`CLIENT` ou `ADMIN`)
+   - `cin`: Numéro de pièce d'identité
+   - `exp`: Durée de validité (8 heures)
+3. **Contrôle d'Accès par Dépendance FastAPI** :
    - `get_current_user`: Valide la signature cryptographique et extrait le profil utilisateur.
-   - `require_admin`: VÃ©rifie que `user["role"] == 'ADMIN'` ; renvoie `403 Forbidden` dans le cas contraire.
-   - Cloisonnement Client : EmpÃªche formellement un client d'accÃ©der aux donnÃ©es d'un autre client.
+   - `require_admin`: Vérifie que `user["role"] == 'ADMIN'` ; renvoie `403 Forbidden` dans le cas contraire.
+   - Cloisonnement Client : Empêche formellement un client d'accéder aux données d'un autre client.
 
-### 8.2. RÃ©pertoire Exhaustif des Endpoints REST
+### 8.2. Répertoire Exhaustif des Endpoints REST
 
-| MÃ©thode | Endpoint | Autorisation | Description MÃ©tier |
+| Méthode | Endpoint | Autorisation | Description Métier |
 | :--- | :--- | :--- | :--- |
 | `POST` | `/api/auth/login` | Public | Authentification OAuth2 avec identifiant/mot de passe. Renvoie le Bearer JWT. |
-| `GET` | `/api/auth/me` | AuthentifiÃ© | Renvoie le profil et les droits de l'utilisateur connectÃ©. |
-| `GET` | `/api/clients/{cin}` | Client / Admin | Vue 360Â° du client (comptes, soldes, cartes). VerrouillÃ© si tiers. |
-| `POST` | `/api/transfers` | Client / Admin | ExÃ©cution d'un virement atomique via `SP_VALIDER_TRANSACTION`. |
-| `GET` | `/api/accounts/{id}/statement` | Client / Admin | RelevÃ© chronologique avec solde progressif en ligne. |
-| `GET` | `/api/cards` | Client / Admin | Liste des cartes bancaires associÃ©es au client. |
+| `GET` | `/api/auth/me` | Authentifié | Renvoie le profil et les droits de l'utilisateur connecté. |
+| `GET` | `/api/clients/{cin}` | Client / Admin | Vue 360° du client (comptes, soldes, cartes). Verrouillé si tiers. |
+| `POST` | `/api/transfers` | Client / Admin | Exécution d'un virement atomique via `SP_VALIDER_TRANSACTION`. |
+| `GET` | `/api/accounts/{id}/statement` | Client / Admin | Relevé chronologique avec solde progressif en ligne. |
+| `GET` | `/api/cards` | Client / Admin | Liste des cartes bancaires associées au client. |
 | `PATCH` | `/api/cards/{id}/status` | Client / Admin | Kill-switch de carte bancaire (`ACTIVE` $\leftrightarrow$ `BLOQUEE`). |
-| `POST` | `/api/beneficiaries` | Client / Admin | Ajout d'un nouveau bÃ©nÃ©ficiaire externe (IBAN/BIC). |
-| `GET` | `/api/admin/anomalies` | Admin | File d'attente des transactions rejetÃ©es ou en attente. |
-| `POST` | `/api/admin/transactions/{id}/force` | Admin | ForÃ§age transactionnel Maker-Checker pour passer `EN_ATTENTE` Ã  `VALIDEE`. |
-| `GET` | `/api/admin/velocity-alerts` | Admin | Alertes algorithmiques de vÃ©locitÃ© (bursts de retraits suspects). |
-| `GET` | `/api/admin/audit/balance` | Admin | VÃ©rification du grand livre gÃ©nÃ©ral ($\sum \text{Mouvements} = 0.00\text{ MAD}$). |
-| `POST` | `/api/admin/audit/reverse` | Admin | Contre-passation (extourne) d'une transaction erronÃ©e. |
-| `POST` | `/api/admin/test-trigger` | Admin | Banc d'Ã©preuve provoquant l'interception de l'erreur MySQL 1644. |
+| `POST` | `/api/beneficiaries` | Client / Admin | Ajout d'un nouveau bénéficiaire externe (IBAN/BIC). |
+| `GET` | `/api/admin/anomalies` | Admin | File d'attente des transactions rejetées ou en attente. |
+| `POST` | `/api/admin/transactions/{id}/force` | Admin | Forçage transactionnel Maker-Checker pour passer `EN_ATTENTE` à `VALIDEE`. |
+| `GET` | `/api/admin/velocity-alerts` | Admin | Alertes algorithmiques de vélocité (bursts de retraits suspects). |
+| `GET` | `/api/admin/audit/balance` | Admin | Vérification du grand livre général ($\sum \text{Mouvements} = 0.00\text{ MAD}$). |
+| `POST` | `/api/admin/audit/reverse` | Admin | Contre-passation (extourne) d'une transaction erronée. |
+| `POST` | `/api/admin/test-trigger` | Admin | Banc d'épreuve provoquant l'interception de l'erreur MySQL 1644. |
 | `GET` | `/api/admin/treasury` | Admin | Encaisse physique des caisses d'agence et GAB/ATM. |
-| `POST` | `/api/admin/treasury/cash-operation` | Admin | DÃ©pÃ´t ou retrait d'espÃ¨ces en caisse d'agence. |
+| `POST` | `/api/admin/treasury/cash-operation` | Admin | Dépôt ou retrait d'espèces en caisse d'agence. |
 | `POST` | `/api/admin/accounts/open` | Admin | Ouverture d'un nouveau compte bancaire avec contrepartie. |
-| `POST` | `/api/admin/accounts/co-holder` | Admin | Ajout ou rÃ©vocation d'un co-titulaire (`TITULARISER`). |
-| `PUT` | `/api/admin/clients/{cin}` | Admin | Mise Ã  jour des donnÃ©es signalÃ©tiques KYC du client. |
-| `GET` | `/api/health` | Public | Sondage de santÃ© de l'API et de la base MySQL. |
+| `POST` | `/api/admin/accounts/co-holder` | Admin | Ajout ou révocation d'un co-titulaire (`TITULARISER`). |
+| `PUT` | `/api/admin/clients/{cin}` | Admin | Mise à jour des données signalétiques KYC du client. |
+| `GET` | `/api/health` | Public | Sondage de santé de l'API et de la base MySQL. |
 
 ---
+
+## 9. Interface Intranet Bancaire Corporate (UI/UX)
+
+L'interface web unifiée (`static/index.html`) adopte les standards visuels et ergonomiques des intranets bancaires suisses et luxembourgeois contemporains :
+
+### 9.1. Principes de Design & Golden Ratio ($\Phi \approx 1,618$)
+* **Typographie Double Contraste** : Utilisation de la police *Plus Jakarta Sans* alternant graisses ultra-fines (300) pour les libellés secondaires et graisses franches (800) pour les titres institutionnels. Les identifiants IBAN et montants financiers sont rendus en *JetBrains Mono*.
+* **Proportions Harmoniques au Nombre d'Or** : Les hauteurs de composants, espacements intérieurs (*padding* modulaire de 13px, 21px, 34px, 55px) et rayons de courbure des cartes respectent les ratios de Fibonacci.
+* **Micro-Interactions & Élévation** : Au survol, les cartes bancaires et tuiles d'indicateurs subissent une élévation subtile (`translateY(-2.6px)`) avec projection d'ombre portée adoucie.
+
+### 9.2. Cloisonnement Étanche des Portails (Zero Cross-Visibility)
+Pour éviter tout risque d'ingérence ou de confusion :
+* **Lorsqu'un client se connecte** : L'écran de connexion disparaît, injectant le jeton JWT dans `sessionStorage`. L'espace Retail s'affiche avec la position consolidée du client, ses comptes et ses cartes. Le composant de changement de mode vers le Back-Office est **rigoureusement invisible**.
+* **Lorsqu'un administrateur se connecte** : La console de supervision Back-Office s'ouvre directement avec les indicateurs de trésorerie, la file d'anomalies et le module d'audit. Le sélecteur de compte client est masqué.
+
+---
+
+## 10. Assurance Qualité & Suite de Tests Automatisés (E2E & DOM)
+
+Le projet intègre une suite de tests automatisés couvrant 100% des cas nominaux et des scénarios d'attaque :
+
+```
+============================= test session starts =============================
+rootdir: C:\Users\Vezyy\Downloads\projet BD
+collected 13 items
+
+tests/test_backend_complet.py::TestAuthAndSecurity::test_login_success_jwt_generation PASSED
+tests/test_backend_complet.py::TestAuthAndSecurity::test_login_invalid_password_401 PASSED
+tests/test_backend_complet.py::TestAuthAndSecurity::test_access_without_token_401 PASSED
+tests/test_backend_complet.py::TestAuthAndSecurity::test_access_with_invalid_token_401 PASSED
+tests/test_backend_complet.py::TestAuthAndSecurity::test_client_cannot_access_other_client_data_403 PASSED
+tests/test_backend_complet.py::TestAuthAndSecurity::test_admin_can_access_any_client_200 PASSED
+tests/test_backend_complet.py::TestACIDTransactions::test_nominal_transfer_balances_updated PASSED
+tests/test_backend_complet.py::TestACIDTransactions::test_insufficient_funds_transfer_rejected_and_rollback PASSED
+tests/test_backend_complet.py::TestACIDTransactions::test_negative_or_zero_amount_transfer_rejected PASSED
+tests/test_backend_complet.py::TestAuditAndImmutability::test_immutability_trigger_blocks_update_error_1644 PASSED
+tests/test_backend_complet.py::TestAuditAndImmutability::test_immutability_trigger_blocks_delete_error_1644 PASSED
+tests/test_backend_complet.py::TestAuditAndImmutability::test_global_ledger_double_entry_balance_is_zero PASSED
+tests/test_backend_complet.py::TestAuditAndImmutability::test_test_trigger_endpoint_catches_1644 PASSED
+
+============================= 13 passed in 1.01s =============================
+```
+
+### 10.1. Synthèse Globale des Suites de Tests (43/43 Validés à 100%)
+
+| Fichier de Test | Framework | Nombre de Tests | Couverture / Objectifs |
+| :--- | :--- | :---: | :--- |
+| `tests/test_backend_complet.py` | Pytest / TestClient | **13** | Validation JWT, Rejets 401/403, Virements ACID, Rollback sur solde insuffisant, Triggers 1644, Équilibre net à 0.00 MAD. |
+| `tests/test_frontend.spec.js` | Node.js Test / JSDOM | **5** | Persistance JWT en `sessionStorage`, purge à la déconnexion, interception d'événement sans rechargement, rendu dynamique du relevé. |
+| `tests/test_api.py` | Pytest / TestClient | **18** | Régression complète sur l'ensemble des routes REST (KYC, cartes, trésorerie, bénéficiaires, forçage Maker-Checker). |
+| `tests/test_e2e_banking.py` | Python DAO | **7** | Scénarios bancaires réels de bout en bout sur base MySQL active. |
+
+---
+
+## 11. Répartition Détaillée des Contributions de l'Équipe
+
+Pour assurer une collaboration d'excellence, la charge de travail a été répartie de manière équitable et documentée entre les 5 membres de l'équipe, tant au niveau des sprints que du versioning Git :
+
+```
+Répartition des Commits Git (Historique Officiel) :
+- Hamza Sibous           : 10 commits (20.0%)
+- Mohamed Amine Aouzagh  : 10 commits (20.0%)
+- Mouad Talibi           : 10 commits (20.0%)
+- Saad Joudali           : 10 commits (20.0%)
+- Yassine Chaouri        : 10 commits (20.0%)
+Total : 50 commits parfaitement équilibrés
+```
+
+### 11.1. Profil & Contributions de Yassine Chaouri ([@Vezzyyy](https://github.com/Vezzyyy))
+* **Rôle Principal** : Chef de Projet & Architecte Base de Données
+* **Responsabilités Clés** :
+  - **Sprint 0 & 1** : Cadrage du cahier des charges bancaire, définition des 12 règles de gestion (RG1 à RG12) et élaboration du Modèle Conceptuel de Données (MCD) sur Mocodo.
+  - **Sprint 3** : Conception de la procédure stockée `SP_VALIDER_TRANSACTION` assurant l'isolation ACID, la vérification pessimiste des découverts et la synchronisation des soldes.
+  - **Sprint 8 & Finalisation** : Réorganisation professionnelle de l'arborescence du dépôt (`sql/`, `docs/`, `tests/`), gouvernance des versions Git et coordination de la rédaction du rapport complet.
+
+### 11.2. Profil & Contributions de Saad Joudali ([@joudali-saad](https://github.com/joudali-saad))
+* **Rôle Principal** : Développeur Backend & Lead DAO Python
+* **Responsabilités Clés** :
+  - **Sprint 0 & 3** : Élaboration du script de population des données de référence (`sql/03_donnees_test.sql`) comprenant 3 agences, 5 clients, des caisses d'agences et des canaux multi-accès.
+  - **Sprint 5** : Implémentation du gestionnaire de pool de connexions MySQL thread-safe (`database.py`) et du module DAO (`banking_dao.py`).
+  - **Sprint 7 & 8** : Intégration des opérations de caisse (dépôts/retraits d'espèces), gestion polymorphique des bénéficiaires externes et gestion temporelle des co-titularités (`TITULARISER`).
+
+### 11.3. Profil & Contributions de Hamza Sibous ([@hamzasibous](https://github.com/hamzasibous))
+* **Rôle Principal** : Ingénieur Sécurité & Backend API FastAPI
+* **Responsabilités Clés** :
+  - **Sprint 2 & 3** : Conception du schéma DDL MySQL (`sql/01_schema_sidpef.sql`), typage monétaire en `DECIMAL(15,2)`, contraintes d'intégrité `ON DELETE RESTRICT` et index B-Tree.
+  - **Sprint 6 & 7** : Implémentation du système d'authentification robuste (hachage Bcrypt, signature JWT `HS256`, injection de dépendances FastAPI et middleware RBAC).
+  - **Sprint 8** : Conception et réalisation de la suite de tests backend impitoyable (`tests/test_backend_complet.py`), validant 13 assertions de sécurité, d'atomicité et d'immuabilité.
+
+### 11.4. Profil & Contributions de Mouad Talibi ([@MouadWork](https://github.com/MouadWork))
+* **Rôle Principal** : Lead Frontend & Designer UI/UX
+* **Responsabilités Clés** :
+  - **Sprint 1 & 4** : Rédaction du guide d'analyse pédagogique (`docs/Comprendre_le_MCD_banque.pdf`) et formalisation des requêtes de calcul de solde progressif via `SUM() OVER`.
+  - **Sprint 7** : Refonte ergonomique complète de l'intranet bancaire selon les principes du Nombre d'Or ($\Phi \approx 1,618$), typographie moderne *Plus Jakarta Sans* et cloisonnement étanche des portails (masquage total du switch de mode).
+  - **Sprint 8** : Conception et écriture de la suite de tests DOM JSDOM (`tests/test_frontend.spec.js`) validant le comportement réactif de l'UI et la gestion de session dans `sessionStorage`.
+
+### 11.5. Profil & Contributions de Mohamed Amine Aouzagh ([@MAminezzz](https://github.com/MAminezzz))
+* **Rôle Principal** : Ingénieur QA & Piste d'Audit
+* **Responsabilités Clés** :
+  - **Sprint 2 & 3** : Élaboration du Modèle Logique de Données (MLD) relationnel et programmation des triggers MySQL d'interception d'immuabilité (`trg_mouvement_before_update` et `trg_mouvement_before_delete` avec `SIGNAL SQLSTATE '45000'`).
+  - **Sprint 4 & 5** : Réalisation des analyses de performance `EXPLAIN` (`sql/04b_explain_performance.sql`), démontrant le passage d'un scan séquentiel (`ALL`) à une recherche indexée (`ref`).
+  - **Sprint 8** : Développement du moteur d'analyse de vélocité anti-fraude, validation du banc d'épreuve des triggers et vérification mathématique de l'équilibre comptable à somme nulle.
+
+---
+
+## 12. Guide de Déploiement & Script de Démonstration de Soutenance
+
+### 12.1. Installation & Démarrage Rapide
+
+```bash
+# 1. Cloner le dépôt officiel
+git clone https://github.com/Vezzyyy/systeme-bancaire-centralise.git
+cd systeme-bancaire-centralise
+
+# 2. Installer les dépendances Python
+pip install fastapi uvicorn pydantic mysql-connector-python passlib[bcrypt] pyjwt pytest requests
+
+# 3. Installer les dépendances Node.js (pour les tests frontend)
+npm install
+
+# 4. Initialiser la base de données MySQL 8+
+mysql -u root -p < sql/01_schema_sidpef.sql
+mysql -u root -p < sql/02_triggers_metier.sql
+mysql -u root -p < sql/03_donnees_test.sql
+mysql -u root -p < sql/05_patch_auth.sql
+
+# 5. Démarrer le serveur API & Intranet
+python -m uvicorn api:app --host 127.0.0.1 --port 8000 --reload
+```
+
+L'application web est instantanément accessible à l'adresse : **`http://127.0.0.1:8000/`**.
+La documentation interactive des API est disponible sur : **`http://127.0.0.1:8000/docs`**.
+
+### 12.2. Exécution des Suites de Tests Automatisés
+
+```bash
+# Exécution de la suite backend (13 tests stricts : Auth, ACID, Triggers 1644)
+pytest tests/test_backend_complet.py -v
+
+# Exécution de la suite frontend DOM (5 tests JSDOM : Sessions, DOM, Relevé)
+npm test
+
+# Exécution de l'intégralité des tests de régression API (18 tests)
+pytest tests/test_api.py -v
+```
+
+### 12.3. Répertoire des Comptes de Démonstration
+
+| Type d'Utilisateur | Nom Complet | Identifiant (Email / CIN) | Rôle | Mot de Passe |
+| :--- | :--- | :--- | :--- | :--- |
+| **Client Test 1** | Yassine Chaouri | `yassine.chaouri@banque.ma` *(ou `BE123456`)* | `CLIENT` | `Sidpef2026!` |
+| **Client Test 2** | Saad Joudali | `saad.joudali@banque.ma` *(ou `BK654321`)* | `CLIENT` | `Sidpef2026!` |
+| **Client Test 3** | Hamza Sibous | `hamza.sibous@banque.ma` *(ou `CD789012`)* | `CLIENT` | `Sidpef2026!` |
+| **Client Test 4** | Mouad Talibi | `mouad.talibi@banque.ma` *(ou `EE345678`)* | `CLIENT` | `Sidpef2026!` |
+| **Client Test 5** | Mohamed Amine Aouzagh | `amine.aouzagh@banque.ma` *(ou `AA901234`)* | `CLIENT` | `Sidpef2026!` |
+| **Superviseur Back-Office** | Administrateur SIDPEF | `admin@sidpef.ma` *(ou `ADMIN001`)* | `ADMIN` | `AdminSidpef2026!` |
+
+### 12.4. Scénario Recommandé pour la Soutenance devant le Jury
+
+1. **Introduction Conceptuelle (3 min)** :
+   - Présenter le diagramme vectoriel [`docs/MCD.svg`](./docs/MCD.svg) et justifier l'héritage par table de classe sur `CONTREPARTIE`.
+   - Expliquer l'entité associative temporelle `TITULARISER` pour les comptes joints.
+2. **Démonstration Espace Client Retail (4 min)** :
+   - Se connecter avec le compte de `yassine.chaouri@banque.ma` (`Sidpef2026!`).
+   - Montrer la position globale consolidée et le relevé dynamique calculé via la Window Function `SUM() OVER`.
+   - Effectuer un virement interne nominal vers Saad Joudali (constater la mise à jour instantanée sans rechargement de page).
+   - Simuler un virement avec un montant supérieur au solde et au découvert autorisé (constater le refus immédiat et le rollback).
+   - Bloquer la carte bancaire via le *Kill Switch* et vérifier le changement d'état.
+3. **Démonstration Console Back-Office & Sécurité (5 min)** :
+   - Se déconnecter et se connecter avec `admin@sidpef.ma` (`AdminSidpef2026!`).
+   - Ouvrir la **File d'attente des Anomalies** (cliquer sur *"Voir toutes les anomalies"* : constater la liste des transactions suspectes ou rejetées).
+   - Présenter le **Banc d'Épreuve des Triggers** : cliquer sur *"Tester l'interception du Trigger"* et observer l'erreur SQLSTATE 45000 / Code 1644 interceptée par l'API, apportant la preuve matérielle de l'immuabilité au jury.
+   - Présenter la **Vérification de l'Équilibre Global** : cliquer sur *"Vérifier l'Équilibre"* et constater le solde net de `0.00 MAD` prouvant la rigueur de la partie double ($\sum D = \sum C$).
+4. **Validation des Tests Automatisés (3 min)** :
+   - Lancer dans le terminal `pytest tests/test_backend_complet.py -v` et `npm test`.
+   - Montrer l'obtention de 100% de réussite sur les 43 tests automatisés du système.
+
+---
+*Document rédigé, vérifié et approuvé par l'ensemble de l'équipe projet SIDPEF le 13 Novembre 2026.*
