@@ -37,6 +37,8 @@ Ce dépôt contient l'analyse, la conception conceptuelle, la modélisation logi
 
 ## 🗂️ Documents & Scripts du Projet
 
+- **Rapport de Projet Détaillé** : [`RAPPORT_PROJET_COMPLET.md`](./RAPPORT_PROJET_COMPLET.md) — Documentation exhaustive de l'architecture, Merise MCD/MLD/MPD, procédures SQL, API, sécurité, tests et contributions individuelles.
+- **Journal des Sprints & Choix de Conception** : [`SPRINTS.md`](./SPRINTS.md) — Historique complet des sprints 0 à 8, guide de soutenance et FAQ jury.
 - **Guide Conceptuel** : [`Comprendre_le_MCD_banque.pdf`](./docs/Comprendre_le_MCD_banque.pdf) — Guide pédagogique pas-à-pas expliquant chaque bloc du modèle et les règles de gestion associées.
 - **Modèle Conceptuel de Données (MCD)** : [`MCD.svg`](./docs/MCD.svg) — Schéma vectoriel Merise généré via Mocodo.
 - **Modèle Logique de Données (MLD)** : [`MLD.png`](./docs/MLD.png) — Schéma relationnel complet conçu avec dbdiagram.io.
