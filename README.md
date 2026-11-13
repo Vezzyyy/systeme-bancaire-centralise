@@ -37,6 +37,7 @@ Ce dépôt contient l'analyse, la conception conceptuelle, la modélisation logi
 
 ## 🗂️ Documents & Scripts du Projet
 
+- **Guide d'Installation & Prise en Main** : [`TUTORIEL_INSTALLATION.md`](./TUTORIEL_INSTALLATION.md) — Guide pas-à-pas pour cloner, charger la base MySQL et lancer l'application en 5 minutes.
 - **Rapport de Projet Détaillé** : [`RAPPORT_PROJET_COMPLET.md`](./RAPPORT_PROJET_COMPLET.md) — Documentation exhaustive de l'architecture, Merise MCD/MLD/MPD, procédures SQL, API, sécurité, tests et contributions individuelles.
 - **Journal des Sprints & Choix de Conception** : [`SPRINTS.md`](./SPRINTS.md) — Historique complet des sprints 0 à 8, guide de soutenance et FAQ jury.
 - **Guide Conceptuel** : [`Comprendre_le_MCD_banque.pdf`](./docs/Comprendre_le_MCD_banque.pdf) — Guide pédagogique pas-à-pas expliquant chaque bloc du modèle et les règles de gestion associées.
@@ -102,18 +103,23 @@ Ce dépôt contient l'analyse, la conception conceptuelle, la modélisation logi
 
 ---
 
-## 💻 Démarrage de l'API Backend SIDPEF
+## 💻 Démarrage Rapide
 
 ```bash
-# 1. Démarrer le serveur API
+# 1. Cloner et installer les dépendances
+pip install -r requirements.txt
+
+# 2. Initialiser la base de données MySQL
+# Sous Windows : .\setup_db.bat  |  Sous macOS/Linux : ./setup_db.sh
+
+# 3. Démarrer le serveur API & Intranet
 python -m uvicorn api:app --reload
 
-# 2. Consulter la documentation Swagger interactive :
-# -> http://127.0.0.1:8000/api/docs
+# 4. Consulter l'application et la documentation interactive :
+# -> Application Intranet : http://127.0.0.1:8000/
+# -> Documentation Swagger : http://127.0.0.1:8000/docs
 
-# 3. Exécuter l'ensemble des tests automatisés :
+# 5. Exécuter l'ensemble des tests automatisés :
+pytest tests/test_backend_complet.py -v
 npm test
-python -m pytest tests/test_backend_complet.py -v
-python tests/test_api.py
-python tests/test_e2e_banking.py
 ```
