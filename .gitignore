@@ -21,3 +21,7 @@ ehthumbs_vista.db
 # Temporary / Log files
 *.log
 *.tmp
+
+# Environment / Agent internal configs
+.agent/
+
