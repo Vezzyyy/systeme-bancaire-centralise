@@ -1259,31 +1259,15 @@
         letter-spacing: 0.04em;
       }
 
-      .login-help {
-        margin-top: 20px;
-        padding-top: 14px;
-        border-top: 1px dashed var(--border-subtle);
-        font-size: 11px;
-        color: var(--text-secondary);
-        background: #f8fafc;
-        padding: 10px 12px;
-        border-radius: 3px;
+      /* Clean Corporate Login Card */
+      .login-card {
+        border-radius: 6px;
+        box-shadow: 0 21px 55px -13px rgba(15, 23, 42, 0.15), 0 8px 16px -4px rgba(15, 23, 42, 0.05);
+        transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.24s ease;
       }
 
-      .login-help-title {
-        font-weight: 700;
-        font-size: 10px;
-        color: var(--text-muted);
-        margin-bottom: 6px;
-        letter-spacing: 0.05em;
-      }
-
-      .login-help-item code {
-        background: #e2e8f0;
-        padding: 2px 5px;
-        border-radius: 2px;
-        font-family: var(--font-mono);
-        font-size: 11px;
+      .login-card:hover {
+        box-shadow: 0 26px 65px -15px rgba(15, 23, 42, 0.20), 0 10px 20px -4px rgba(15, 23, 42, 0.08);
       }
 
     </style>
@@ -1296,7 +1280,6 @@
         <div class="login-header">
           <div class="login-logo">SIDPEF</div>
           <div class="login-sub">Système Bancaire Centralisé</div>
-          <div class="login-badge">AUTHENTIFICATION INTRANET SÉCURISÉE</div>
         </div>
 
         <form id="login-form" onsubmit="handleLoginSubmit(event)">
@@ -1335,18 +1318,6 @@
             Se connecter à l'Intranet →
           </button>
         </form>
-
-        <div class="login-help">
-          <div class="login-help-title">COMPTES DE TEST HOMOLOGUÉS (ENVIRONNEMENT LOCAL)</div>
-          <div class="login-help-item">
-            <strong>Clients :</strong> <code>yassine.chaouri@banque.ma</code> (ou <code>saad</code>, <code>mouad</code>, <code>hamza</code>, <code>amine</code>)<br/>
-            <strong>Mot de passe :</strong> <code>Sidpef2026!</code>
-          </div>
-          <div class="login-help-item" style="margin-top: 6px;">
-            <strong>Back-Office :</strong> <code>admin@sidpef.ma</code><br/>
-            <strong>Mot de passe :</strong> <code>AdminSidpef2026!</code>
-          </div>
-        </div>
       </div>
     </div>
 
