@@ -16,10 +16,7 @@
     <meta property="og:type" content="website" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
       :root {
@@ -43,7 +40,7 @@
         --warning-text: #7a5500;
         --warning-bg: #fdf8e6;
         --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
-        --font-ui: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+        --font-ui: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
         --font-mono: 'JetBrains Mono', 'Courier New', monospace;
       }
 
@@ -63,6 +60,29 @@
         font-family: var(--font-ui);
         font-size: 13px;
         line-height: 1.45;
+        letter-spacing: -0.01em;
+        font-weight: 400;
+      }
+
+      h1, h2, h3, .card-title, .page-title {
+        font-weight: 800;
+        letter-spacing: -0.025em;
+      }
+
+      .metric-value {
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+
+      .metric-sub {
+        font-weight: 300;
+        letter-spacing: 0.01em;
+      }
+
+      .label-upper {
+        font-weight: 600;
+        letter-spacing: 0.06em;
+      }
         -webkit-font-smoothing: antialiased;
       }
 
