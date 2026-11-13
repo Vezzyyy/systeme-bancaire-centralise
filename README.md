@@ -35,11 +35,14 @@ Ce dépôt contient l'analyse, la conception conceptuelle, la modélisation logi
 
 ---
 
-## 🗂️ Documents du Projet
+## 🗂️ Documents & Scripts du Projet
 
 - **Guide Conceptuel** : [`Comprendre_le_MCD_banque.pdf`](./Comprendre_le_MCD_banque.pdf) — Guide pédagogique pas-à-pas expliquant chaque bloc du modèle et les règles de gestion associées.
 - **Modèle Conceptuel de Données (MCD)** : [`MCD.svg`](./MCD.svg) — Schéma vectoriel Merise généré via Mocodo.
-- **Modèle Logique de Données (MLD)** : [`MLD.png`](./MLD.png) — Schéma relationnel complet (tables, types de données, clés primaires et étrangères, contraintes de non-nullité) conçu avec dbdiagram.io.
+- **Modèle Logique de Données (MLD)** : [`MLD.png`](./MLD.png) — Schéma relationnel complet conçu avec dbdiagram.io.
+- **DDL & Schéma MySQL** : [`01_schema_sidpef.sql`](./01_schema_sidpef.sql) — Création des 13 tables, clés primaires/étrangères (`ON DELETE RESTRICT`), contraintes `CHECK` et index.
+- **Logique Métier & Triggers** : [`02_triggers_metier.sql`](./02_triggers_metier.sql) — Procédure stockée `SP_VALIDER_TRANSACTION` (partie double, mise à jour atomique des soldes) et triggers d'immuabilité sur `MOUVEMENT`.
+- **Données de Test & Simulation** : [`03_donnees_test.sql`](./03_donnees_test.sql) — Jeu de données complet (3 agences, 5 clients, 5 comptes, 1 GAB/ATM, 1 bénéficiaire externe, cartes) et test de virement.
 
 ---
 
@@ -51,10 +54,12 @@ Ce dépôt contient l'analyse, la conception conceptuelle, la modélisation logi
 - [x] **Sprint 2 : Modélisation Logique Relationnelle (MLD)**
   - Traduction Merise vers le modèle relationnel.
   - Spécification des types SQL, contraintes d'intégrité référentielle (PK / FK) et héritage par table par classe.
-- [ ] **Sprint 3 : Implémentation Physique (MPD & Scripts DDL)**
-  - Scripts SQL de création des tables, index et contraintes de vérification (`CHECK`).
-  - Déclencheurs (triggers) ou procédures pour garantir l'équilibre débit/crédit et la cohérence des soldes.
-- [ ] **Sprint 4 : Jeu d'essai & Scénarios Bancaires (Data Seeding)**
-  - Données de test réalistes simulant des flux complets (ouvertures, retraits guichet, paiements par carte, virements interbancaires).
+- [x] **Sprint 3 : Implémentation Physique & Logique Métier (MySQL 8+)**
+  - Script DDL complet (`01_schema_sidpef.sql`) avec clauses `ON DELETE RESTRICT` et index de performance.
+  - Procédure stockée `SP_VALIDER_TRANSACTION` avec vérification de la partie double ($\sum D = \sum C$) et mise à jour atomique.
+  - Triggers d'immuabilité comptable (`BEFORE UPDATE` / `BEFORE DELETE` sur `MOUVEMENT`).
+  - Jeu d'essai réaliste et validation transactionnelle d'un virement de 2 500 MAD (`03_donnees_test.sql`).
+- [ ] **Sprint 4 : Jeu d'essai Étendu & Scénarios Monétiques (Data Seeding Avancé)**
+  - Simulation de retraits GAB, paiements TPE avec contrôle de plafonds et annulations par extourne (`COMPENSER`).
 - [ ] **Sprint 5 : Requêtes d'Exploitation & Reporting**
-  - Relevés de comptes, calculs d'encours, détection d'anomalies et suivi des soldes en temps réel.
+  - Relevés de comptes chronologiques, balances comptables par agence et détection d'anomalies.
