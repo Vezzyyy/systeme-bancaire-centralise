@@ -43,6 +43,8 @@ Ce dépôt contient l'analyse, la conception conceptuelle, la modélisation logi
 - **DDL & Schéma MySQL** : [`01_schema_sidpef.sql`](./01_schema_sidpef.sql) — Création des 13 tables, clés primaires/étrangères (`ON DELETE RESTRICT`), contraintes `CHECK` et index.
 - **Logique Métier & Triggers** : [`02_triggers_metier.sql`](./02_triggers_metier.sql) — Procédure stockée `SP_VALIDER_TRANSACTION` (partie double, mise à jour atomique des soldes) et triggers d'immuabilité sur `MOUVEMENT`.
 - **Données de Test & Simulation** : [`03_donnees_test.sql`](./03_donnees_test.sql) — Jeu de données complet (3 agences, 5 clients, 5 comptes, 1 GAB/ATM, 1 bénéficiaire externe, cartes) et test de virement.
+- **Requêtes Analytiques (Exigence 8)** : [`04_requetes_analytiques.sql`](./04_requetes_analytiques.sql) — 5 requêtes métier complexes (fenêtrage `SUM() OVER`, jointures 360°, agrégations, sous-requêtes).
+- **Analyse de Performance & EXPLAIN (Exigence 9)** : [`04b_explain_performance.sql`](./04b_explain_performance.sql) — Démonstrations et benchmarks `EXPLAIN` avant/après indexation avec profilage SQL.
 
 ---
 
@@ -59,7 +61,12 @@ Ce dépôt contient l'analyse, la conception conceptuelle, la modélisation logi
   - Procédure stockée `SP_VALIDER_TRANSACTION` avec vérification de la partie double ($\sum D = \sum C$) et mise à jour atomique.
   - Triggers d'immuabilité comptable (`BEFORE UPDATE` / `BEFORE DELETE` sur `MOUVEMENT`).
   - Jeu d'essai réaliste et validation transactionnelle d'un virement de 2 500 MAD (`03_donnees_test.sql`).
-- [ ] **Sprint 4 : Jeu d'essai Étendu & Scénarios Monétiques (Data Seeding Avancé)**
-  - Simulation de retraits GAB, paiements TPE avec contrôle de plafonds et annulations par extourne (`COMPENSER`).
-- [ ] **Sprint 5 : Requêtes d'Exploitation & Reporting**
-  - Relevés de comptes chronologiques, balances comptables par agence et détection d'anomalies.
+- [x] **Sprint 4 : Requêtage Avancé & Analyse de Performance EXPLAIN (Exigences 8 & 9)**
+  - Sélection & filtrage des opérations en anomalie (en attente / rejetées).
+  - Vue 360° du client consolidant comptes, cartes et historique de mouvements.
+  - Agrégation de liquidité (dépôts/retraits d'espèces par agence).
+  - Sous-requête patrimoniale des clients dont le solde cumulé dépasse la moyenne bancaire.
+  - Relevé de compte chronologique avec fonction de fenêtrage avancée (`SUM() OVER(PARTITION BY... ORDER BY...)`).
+  - Preuve formelle d'optimisation `EXPLAIN` (passage de `type: ALL` à `type: ref` après indexation de `date_heure` et `email`).
+- [ ] **Sprint 5 : Vues d'Exploitation & Reporting Global**
+  - Vues SQL de synthèse, balance de trésorerie consolidée et détection des comptes débiteurs.
