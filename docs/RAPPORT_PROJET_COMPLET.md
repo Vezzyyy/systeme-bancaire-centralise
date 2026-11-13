@@ -62,6 +62,15 @@ Le système **SIDPEF** a été conçu pour concilier deux exigences majeures :
 - **RG11 (Intégrité Référentielle Restrictive)** : Toutes les clés étrangères financières sont configurées en `ON DELETE RESTRICT` afin de bannir les suppressions en cascade accidentelles.
 - **RG12 (Zéro Net Global)** : À tout instant, la somme algébrique globale de tous les mouvements enregistrés dans le système bancaire doit être exactement égale à `0.00 MAD`.
 
+### 1.3. Organisation Documentaire Centralisée (`docs/`)
+Afin de garantir une lisibilité optimale et une maintenance aisée du projet, l'ensemble des livrables documentaires, guides et schémas conceptuels sont regroupés au sein du répertoire `docs/` :
+* **[`TUTORIEL_INSTALLATION.md`](./TUTORIEL_INSTALLATION.md)** : Guide pas-à-pas de clonage, initialisation MySQL 8+ et démarrage rapide en 5 minutes.
+* **[`RAPPORT_PROJET_COMPLET.md`](./RAPPORT_PROJET_COMPLET.md)** : Rapport technique exhaustif (Merise, Moteur SQL ACID, API FastAPI, Sécurité RBAC/JWT, QA et contributions).
+* **[`SPRINTS.md`](./SPRINTS.md)** : Journal de bord chronologique des Sprints 0 à 8 avec justifications de modélisation et FAQ jury.
+* **[`MCD.svg`](./MCD.svg)** : Schéma vectoriel Merise généré via Mocodo.
+* **[`MLD.png`](./MLD.png)** : Schéma relationnel logique complet conçu avec dbdiagram.io.
+* **[`Comprendre_le_MCD_banque.pdf`](./Comprendre_le_MCD_banque.pdf)** : Guide pédagogique pas-à-pas expliquant chaque bloc du modèle et ses règles associées.
+
 ---
 
 ## 2. Modélisation Conceptuelle des Données (MCD Merise)
