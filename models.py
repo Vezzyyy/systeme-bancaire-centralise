@@ -50,6 +50,8 @@ class Client:
     date_naissance: Optional[date]
     email: Optional[str]
     telephone: Optional[str]
+    role: str = "CLIENT"
+    mot_de_passe_hash: Optional[str] = None
 
 
 @dataclass

@@ -5,7 +5,9 @@ Gère l'interaction avec MySQL, les procédures stockées et l'intégrité trans
 
 from datetime import datetime
 from decimal import Decimal
+from typing import Optional
 import uuid
+import bcrypt
 import mysql.connector
 from database import DatabaseManager
 from models import (
@@ -21,6 +23,69 @@ from models import (
 
 class BankingDAO:
     """Classe d'accès aux opérations bancaires et analytiques."""
+
+    @staticmethod
+    def verify_password(plain_password: str, hashed_password: str) -> bool:
+        """Vérifie un mot de passe en clair par rapport à son empreinte bcrypt."""
+        if not hashed_password or not plain_password:
+            return False
+        try:
+            return bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password.encode("utf-8"))
+        except Exception:
+            return False
+
+    @staticmethod
+    def hash_password(plain_password: str) -> str:
+        """Génère une empreinte bcrypt sécurisée avec sel aléatoire."""
+        salt = bcrypt.gensalt(10)
+        return bcrypt.hashpw(plain_password.encode("utf-8"), salt).decode("utf-8")
+
+    @staticmethod
+    def authenticate_user(login: str, password: str) -> Optional[dict]:
+        """
+        Authentifie un utilisateur (client ou administrateur) par email ou CIN.
+        Retourne le dictionnaire du profil sans le hash si valide, None sinon.
+        """
+        query = """
+            SELECT num_client, nom, prenom, cin, date_naissance, email, telephone,
+                   role, mot_de_passe_hash
+            FROM client
+            WHERE email = %s OR cin = %s;
+        """
+        with DatabaseManager.get_cursor(dictionary=True) as (cursor, _):
+            cursor.execute(query, (login.strip(), login.strip().upper()))
+            row = cursor.fetchone()
+            if not row or not row.get("mot_de_passe_hash"):
+                return None
+            if not BankingDAO.verify_password(password, row["mot_de_passe_hash"]):
+                return None
+            return {
+                "num_client": row["num_client"],
+                "nom": row["nom"],
+                "prenom": row["prenom"],
+                "cin": row["cin"],
+                "date_naissance": str(row["date_naissance"]) if row["date_naissance"] else None,
+                "email": row["email"],
+                "telephone": row["telephone"],
+                "role": row.get("role", "CLIENT"),
+            }
+
+    @staticmethod
+    def get_user_by_cin(cin: str) -> Optional[dict]:
+        """Retourne les informations d'un utilisateur par son CIN."""
+        query = """
+            SELECT num_client, nom, prenom, cin, date_naissance, email, telephone, role
+            FROM client
+            WHERE cin = %s;
+        """
+        with DatabaseManager.get_cursor(dictionary=True) as (cursor, _):
+            cursor.execute(query, (cin.strip().upper(),))
+            row = cursor.fetchone()
+            if not row:
+                return None
+            if row.get("date_naissance"):
+                row["date_naissance"] = str(row["date_naissance"])
+            return row
 
     @staticmethod
     def get_compte(id_compte: int) -> Compte:
@@ -86,6 +151,7 @@ class BankingDAO:
                     date_naissance=client_row["date_naissance"],
                     email=client_row["email"],
                     telephone=client_row["telephone"],
+                    role=client_row.get("role", "CLIENT"),
                 ),
                 "comptes": comptes,
                 "cartes": cartes,
