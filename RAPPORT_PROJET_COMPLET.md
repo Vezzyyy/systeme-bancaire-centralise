@@ -594,12 +594,12 @@ Pour assurer une collaboration d'excellence, la charge de travail a été répar
 
 ```
 Répartition des Commits Git (Historique Officiel) :
-- Hamza Sibous           : 10 commits (20.0%)
-- Mohamed Amine Aouzagh  : 10 commits (20.0%)
-- Mouad Talibi           : 10 commits (20.0%)
-- Saad Joudali           : 10 commits (20.0%)
-- Yassine Chaouri        : 10 commits (20.0%)
-Total : 50 commits parfaitement équilibrés
+- Hamza Sibous           : 11 commits (20.0%)
+- Mohamed Amine Aouzagh  : 11 commits (20.0%)
+- Mouad Talibi           : 11 commits (20.0%)
+- Saad Joudali           : 11 commits (20.0%)
+- Yassine Chaouri        : 11 commits (20.0%)
+Total : 55 commits parfaitement équilibrés
 ```
 
 ### 11.1. Profil & Contributions de Yassine Chaouri ([@Vezzyyy](https://github.com/Vezzyyy))
@@ -649,12 +649,14 @@ git clone https://github.com/Vezzyyy/systeme-bancaire-centralise.git
 cd systeme-bancaire-centralise
 
 # 2. Installer les dépendances Python
-pip install fastapi uvicorn pydantic mysql-connector-python passlib[bcrypt] pyjwt pytest requests
+pip install -r requirements.txt
 
-# 3. Installer les dépendances Node.js (pour les tests frontend)
+# 3. Installer les dépendances Node.js (optionnel, pour les tests frontend)
 npm install
 
 # 4. Initialiser la base de données MySQL 8+
+# Option Automatique : .\setup_db.bat (Windows) ou ./setup_db.sh (macOS/Linux)
+# Option Manuelle :
 mysql -u root -p < sql/01_schema_sidpef.sql
 mysql -u root -p < sql/02_triggers_metier.sql
 mysql -u root -p < sql/03_donnees_test.sql
@@ -663,6 +665,8 @@ mysql -u root -p < sql/05_patch_auth.sql
 # 5. Démarrer le serveur API & Intranet
 python -m uvicorn api:app --host 127.0.0.1 --port 8000 --reload
 ```
+
+> 💡 *Un tutoriel complet pas-à-pas pour les membres de l'équipe est disponible dans [`TUTORIEL_INSTALLATION.md`](./TUTORIEL_INSTALLATION.md).*
 
 L'application web est instantanément accessible à l'adresse : **`http://127.0.0.1:8000/`**.
 La documentation interactive des API est disponible sur : **`http://127.0.0.1:8000/docs`**.
