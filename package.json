@@ -1,0 +1,13 @@
+{
+  "name": "sidpef-banking-tests",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/test_frontend.spec.js",
+    "test:backend": "python -m pytest tests/test_backend_complet.py -v"
+  },
+  "devDependencies": {
+    "jsdom": "^31.0.1"
+  }
+}
