@@ -16,10 +16,7 @@
     <meta property="og:type" content="website" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
       :root {
@@ -42,9 +39,74 @@
         --danger-border: #c0392b;
         --warning-text: #7a5500;
         --warning-bg: #fdf8e6;
-        --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
-        --font-ui: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+        --font-ui: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
         --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+
+        /* Golden Ratio Modular Scale & Layering */
+        --phi: 1.618;
+        --phi-xs: 5px;
+        --phi-sm: 8px;
+        --phi-md: 13px;
+        --phi-lg: 21px;
+        --phi-xl: 34px;
+        --phi-2xl: 55px;
+        --shadow-card: 0 1.6px 3.2px rgba(15, 23, 42, 0.04), 0 5.2px 13px -2px rgba(15, 23, 42, 0.04);
+        --shadow-hover: 0 4.2px 12px -2px rgba(15, 23, 42, 0.08), 0 13px 26px -4px rgba(15, 23, 42, 0.06);
+      }
+
+      /* Hover Effects & Smooth Layering */
+      .card, .metric-card {
+        transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.22s ease;
+      }
+
+      .metric-card:hover, .card:hover {
+        transform: translateY(-2.6px);
+        box-shadow: var(--shadow-hover);
+        border-color: #cbd5e1;
+      }
+
+      .btn {
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        transition: transform 0.16s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.16s ease, background-color 0.16s ease, border-color 0.16s ease;
+      }
+
+      .btn:hover {
+        transform: translateY(-1.5px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      }
+
+      .btn:active {
+        transform: translateY(0);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      }
+
+      .data-table tbody tr {
+        transition: background-color 0.15s ease;
+      }
+
+      .data-table tbody tr:hover {
+        background-color: #f1f5f9 !important;
+      }
+
+      .sidebar-nav-item {
+        transition: background-color 0.18s ease, padding-left 0.18s cubic-bezier(0.16, 1, 0.3, 1), color 0.18s ease;
+      }
+
+      .sidebar-nav-item:hover {
+        background-color: rgba(255, 255, 255, 0.08);
+        padding-left: 18px;
+        color: #ffffff;
+      }
+
+      .form-input {
+        transition: border-color 0.18s ease, box-shadow 0.18s ease;
+      }
+
+      .form-input:focus {
+        border-color: var(--accent-secondary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 168, 0.12);
+        outline: none;
       }
 
       *,
@@ -63,6 +125,29 @@
         font-family: var(--font-ui);
         font-size: 13px;
         line-height: 1.45;
+        letter-spacing: -0.01em;
+        font-weight: 400;
+      }
+
+      h1, h2, h3, .card-title, .page-title {
+        font-weight: 800;
+        letter-spacing: -0.025em;
+      }
+
+      .metric-value {
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+
+      .metric-sub {
+        font-weight: 300;
+        letter-spacing: 0.01em;
+      }
+
+      .label-upper {
+        font-weight: 600;
+        letter-spacing: 0.06em;
+      }
         -webkit-font-smoothing: antialiased;
       }
 
@@ -1174,31 +1259,15 @@
         letter-spacing: 0.04em;
       }
 
-      .login-help {
-        margin-top: 20px;
-        padding-top: 14px;
-        border-top: 1px dashed var(--border-subtle);
-        font-size: 11px;
-        color: var(--text-secondary);
-        background: #f8fafc;
-        padding: 10px 12px;
-        border-radius: 3px;
+      /* Clean Corporate Login Card */
+      .login-card {
+        border-radius: 6px;
+        box-shadow: 0 21px 55px -13px rgba(15, 23, 42, 0.15), 0 8px 16px -4px rgba(15, 23, 42, 0.05);
+        transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.24s ease;
       }
 
-      .login-help-title {
-        font-weight: 700;
-        font-size: 10px;
-        color: var(--text-muted);
-        margin-bottom: 6px;
-        letter-spacing: 0.05em;
-      }
-
-      .login-help-item code {
-        background: #e2e8f0;
-        padding: 2px 5px;
-        border-radius: 2px;
-        font-family: var(--font-mono);
-        font-size: 11px;
+      .login-card:hover {
+        box-shadow: 0 26px 65px -15px rgba(15, 23, 42, 0.20), 0 10px 20px -4px rgba(15, 23, 42, 0.08);
       }
 
     </style>
@@ -1211,7 +1280,6 @@
         <div class="login-header">
           <div class="login-logo">SIDPEF</div>
           <div class="login-sub">Système Bancaire Centralisé</div>
-          <div class="login-badge">AUTHENTIFICATION INTRANET SÉCURISÉE</div>
         </div>
 
         <form id="login-form" onsubmit="handleLoginSubmit(event)">
@@ -1250,18 +1318,6 @@
             Se connecter à l'Intranet →
           </button>
         </form>
-
-        <div class="login-help">
-          <div class="login-help-title">COMPTES DE TEST HOMOLOGUÉS (ENVIRONNEMENT LOCAL)</div>
-          <div class="login-help-item">
-            <strong>Clients :</strong> <code>yassine.chaouri@banque.ma</code> (ou <code>saad</code>, <code>mouad</code>, <code>hamza</code>, <code>amine</code>)<br/>
-            <strong>Mot de passe :</strong> <code>Sidpef2026!</code>
-          </div>
-          <div class="login-help-item" style="margin-top: 6px;">
-            <strong>Back-Office :</strong> <code>admin@sidpef.ma</code><br/>
-            <strong>Mot de passe :</strong> <code>AdminSidpef2026!</code>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -1274,7 +1330,7 @@
         </div>
 
         <!-- Mode Switcher -->
-        <div class="mode-switcher">
+        <div class="mode-switcher" style="display: none;">
           <button
             type="button"
             id="mode-btn-client"
@@ -4767,33 +4823,30 @@
         const nameEl = document.getElementById('session-user-name');
         const subEl = document.getElementById('session-user-sub');
         const roleBadge = document.getElementById('session-role-badge');
-        const modeBtnAdmin = document.getElementById('mode-btn-admin');
+        const modeSwitcher = document.querySelector('.mode-switcher');
 
         if (nameEl) nameEl.textContent = `${user.prenom} ${user.nom}`;
         if (subEl) subEl.textContent = `CIN: ${user.cin}`;
         if (roleBadge) {
           roleBadge.textContent = user.role;
-          roleBadge.className = user.role === 'ADMIN' ? 'badge badge-warning' : 'badge badge-success';
+          roleBadge.className = String(user.role).toUpperCase() === 'ADMIN' ? 'badge badge-warning' : 'badge badge-success';
         }
 
-        // Restreindre le mode admin si role CLIENT
-        if (modeBtnAdmin) {
-          if (user.role === 'CLIENT') {
-            modeBtnAdmin.style.opacity = '0.4';
-            modeBtnAdmin.style.cursor = 'not-allowed';
-            modeBtnAdmin.title = 'Accès réservé au Back-Office Administrateur';
-            modeBtnAdmin.onclick = (e) => {
-              e.preventDefault();
-              alert('Accès refusé : Votre profil CLIENT ne dispose pas des privilèges Back-Office.');
-            };
-          } else {
-            modeBtnAdmin.style.opacity = '1';
-            modeBtnAdmin.style.cursor = 'pointer';
-            modeBtnAdmin.title = 'Back-Office Admin';
-            modeBtnAdmin.onclick = () => switchMode('admin');
-          }
+        // Masquer complètement le rectangle de bascule pour les deux rôles (aucun rectangle visible)
+        if (modeSwitcher) {
+          modeSwitcher.style.display = 'none';
         }
 
+        const sidebar = document.getElementById('sidebar');
+        if (String(user.role).toUpperCase() === 'ADMIN') {
+          AppState.mode = 'admin';
+          if (sidebar) sidebar.classList.add('admin-mode');
+        } else {
+          AppState.mode = 'client';
+          if (sidebar) sidebar.classList.remove('admin-mode');
+        }
+
+        renderSidebarNav();
         updateTopbar();
       }
 
