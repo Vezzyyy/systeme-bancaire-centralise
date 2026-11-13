@@ -489,5 +489,6 @@ L'intégralité des 8 Sprints (MCD, MLD, MPD/DDL/Triggers MySQL, Requêtes analy
 * **Couche Logicielle Python 3.12+ (ORM/DAO & FastAPI)** testée à 100% avec documentation Swagger interactive (`/docs`).
 * **Intranet Bancaire Corporate SPA** respectant le Nombre d'Or ($\Phi \approx 1,618$), typographie moderne et cloisonnement étanche des portails (client et admin).
 * **43 Tests Automatisés Validés à 100%** (pytest, JSDOM, TestClient, DAO).
-* **Versioning Git Professionnel** avec répartition rigoureusement équitable de 10 commits par membre de l'équipe (50 commits au total).
+* **Versioning Git Professionnel** avec répartition rigoureusement équitable de 12 commits par membre de l'équipe (60 commits au total).
 * **Rapport Exhaustif Disponible** : [`RAPPORT_PROJET_COMPLET.md`](./RAPPORT_PROJET_COMPLET.md) détaillant l'architecture, le code et les contributions individuelles.
+* **Guide d'Installation & Prise en Main** : [`TUTORIEL_INSTALLATION.md`](./TUTORIEL_INSTALLATION.md) pour les membres de l'équipe.
