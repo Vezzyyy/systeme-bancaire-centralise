@@ -594,12 +594,12 @@ Pour assurer une collaboration d'excellence, la charge de travail a été répar
 
 ```
 Répartition des Commits Git (Historique Officiel) :
-- Hamza Sibous           : 11 commits (20.0%)
-- Mohamed Amine Aouzagh  : 11 commits (20.0%)
-- Mouad Talibi           : 11 commits (20.0%)
-- Saad Joudali           : 11 commits (20.0%)
-- Yassine Chaouri        : 11 commits (20.0%)
-Total : 55 commits parfaitement équilibrés
+- Hamza Sibous           : 12 commits (20.0%)
+- Mohamed Amine Aouzagh  : 12 commits (20.0%)
+- Mouad Talibi           : 12 commits (20.0%)
+- Saad Joudali           : 12 commits (20.0%)
+- Yassine Chaouri        : 12 commits (20.0%)
+Total : 60 commits parfaitement équilibrés
 ```
 
 ### 11.1. Profil & Contributions de Yassine Chaouri ([@Vezzyyy](https://github.com/Vezzyyy))
@@ -698,7 +698,7 @@ pytest tests/test_api.py -v
 ### 12.4. Scénario Recommandé pour la Soutenance devant le Jury
 
 1. **Introduction Conceptuelle (3 min)** :
-   - Présenter le diagramme vectoriel [`docs/MCD.svg`](./docs/MCD.svg) et justifier l'héritage par table de classe sur `CONTREPARTIE`.
+   - Présenter le diagramme vectoriel [`MCD.svg`](./MCD.svg) et justifier l'héritage par table de classe sur `CONTREPARTIE`.
    - Expliquer l'entité associative temporelle `TITULARISER` pour les comptes joints.
 2. **Démonstration Espace Client Retail (4 min)** :
    - Se connecter avec le compte de `yassine.chaouri@banque.ma` (`Sidpef2026!`).
