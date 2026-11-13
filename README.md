@@ -45,6 +45,12 @@ Ce dépôt contient l'analyse, la conception conceptuelle, la modélisation logi
 - **Données de Test & Simulation** : [`03_donnees_test.sql`](./03_donnees_test.sql) — Jeu de données complet (3 agences, 5 clients, 5 comptes, 1 GAB/ATM, 1 bénéficiaire externe, cartes) et test de virement.
 - **Requêtes Analytiques (Exigence 8)** : [`04_requetes_analytiques.sql`](./04_requetes_analytiques.sql) — 5 requêtes métier complexes (fenêtrage `SUM() OVER`, jointures 360°, agrégations, sous-requêtes).
 - **Analyse de Performance & EXPLAIN (Exigence 9)** : [`04b_explain_performance.sql`](./04b_explain_performance.sql) — Démonstrations et benchmarks `EXPLAIN` avant/après indexation avec profilage SQL.
+- **Intégration Python & ORM (Exigence 10)** :
+  - [`config.py`](./config.py) & [`.env.example`](./.env.example) : Isolation des identifiants et configuration paramétrée.
+  - [`database.py`](./database.py) : Gestionnaire de pool de connexions MySQL (`mysql.connector.pooling`) et context managers.
+  - [`models.py`](./models.py) : Modèles de données typés (`dataclasses`) et hiérarchie d'exceptions bancaires.
+  - [`banking_dao.py`](./banking_dao.py) : Couche d'accès aux données (ORM/DAO), exécution atomique de virements via `SP_VALIDER_TRANSACTION` et extraction analytique.
+  - [`test_e2e_banking.py`](./test_e2e_banking.py) : Suite de tests automatisés de bout en bout (7 tests réussis à 100%).
 
 ---
 
@@ -67,6 +73,9 @@ Ce dépôt contient l'analyse, la conception conceptuelle, la modélisation logi
   - Agrégation de liquidité (dépôts/retraits d'espèces par agence).
   - Sous-requête patrimoniale des clients dont le solde cumulé dépasse la moyenne bancaire.
   - Relevé de compte chronologique avec fonction de fenêtrage avancée (`SUM() OVER(PARTITION BY... ORDER BY...)`).
-  - Preuve formelle d'optimisation `EXPLAIN` (passage de `type: ALL` à `type: ref` après indexation de `date_heure` et `email`).
-- [ ] **Sprint 5 : Vues d'Exploitation & Reporting Global**
-  - Vues SQL de synthèse, balance de trésorerie consolidée et détection des comptes débiteurs.
+  - Preuve formelle d'optimisation `EXPLAIN` (passage de `type: ALL` à `type: ref` après indexation).
+- [x] **Sprint 5 : Intégration Applicative Python & Tests End-to-End (Exigence 10)**
+  - Module d'accès aux données (`BankingDAO`) et pool de connexions sécurisé (`DatabaseManager`).
+  - Exécution transactionnelle de virements appelant la procédure stockée `SP_VALIDER_TRANSACTION`.
+  - Gestion stricte de l'atomicité (`COMMIT`, `ROLLBACK` automatique et levée d'exceptions typées).
+  - Validation complète de bout en bout (`python test_e2e_banking.py`) couvrant 7 scénarios réels.
